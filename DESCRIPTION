@@ -9,3 +9,5 @@ Description: More about what it does (maybe more than one line).
 License: What license is it under?
 Imports: Rcpp (>= 1.0.13)
 LinkingTo: Rcpp, RcppArmadillo
+URL: https://github.com/MCKnaus/OutcomeWeights
+BugReports: https://github.com/MCKnaus/OutcomeWeights/issues
