@@ -1,5 +1,3 @@
-[![HitCount](https://hits.dwyl.com/MCKnaus/causalDML.svg?style=flat-square)](http://hits.dwyl.com/MCKnaus/OutcomeWeights) <!--- Started 1.11.2024 using https://hits.dwyl.com/ -->
-
 # Outcome Weights
 
 This R package calculates the outcome weights of Knaus (2024). 
