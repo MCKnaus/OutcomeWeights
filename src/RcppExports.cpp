@@ -11,55 +11,22 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// rcpparma_hello_world
-arma::mat rcpparma_hello_world();
-RcppExport SEXP _OutcomeWeights_rcpparma_hello_world() {
+// scaled_Ztildex_maker
+arma::mat scaled_Ztildex_maker(arma::sp_mat& alpha, const arma::colvec& res_z, const arma::colvec& res_d);
+RcppExport SEXP _OutcomeWeights_scaled_Ztildex_maker(SEXP alphaSEXP, SEXP res_zSEXP, SEXP res_dSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(rcpparma_hello_world());
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpparma_outerproduct
-arma::mat rcpparma_outerproduct(const arma::colvec& x);
-RcppExport SEXP _OutcomeWeights_rcpparma_outerproduct(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpparma_outerproduct(x));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpparma_innerproduct
-double rcpparma_innerproduct(const arma::colvec& x);
-RcppExport SEXP _OutcomeWeights_rcpparma_innerproduct(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpparma_innerproduct(x));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpparma_bothproducts
-Rcpp::List rcpparma_bothproducts(const arma::colvec& x);
-RcppExport SEXP _OutcomeWeights_rcpparma_bothproducts(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpparma_bothproducts(x));
+    Rcpp::traits::input_parameter< arma::sp_mat& >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type res_z(res_zSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type res_d(res_dSEXP);
+    rcpp_result_gen = Rcpp::wrap(scaled_Ztildex_maker(alpha, res_z, res_d));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_OutcomeWeights_rcpparma_hello_world", (DL_FUNC) &_OutcomeWeights_rcpparma_hello_world, 0},
-    {"_OutcomeWeights_rcpparma_outerproduct", (DL_FUNC) &_OutcomeWeights_rcpparma_outerproduct, 1},
-    {"_OutcomeWeights_rcpparma_innerproduct", (DL_FUNC) &_OutcomeWeights_rcpparma_innerproduct, 1},
-    {"_OutcomeWeights_rcpparma_bothproducts", (DL_FUNC) &_OutcomeWeights_rcpparma_bothproducts, 1},
+    {"_OutcomeWeights_scaled_Ztildex_maker", (DL_FUNC) &_OutcomeWeights_scaled_Ztildex_maker, 3},
     {NULL, NULL, 0}
 };
 
