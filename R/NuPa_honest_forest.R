@@ -59,7 +59,7 @@ NuPa_honest_forest = function(NuPa = c("Y.hat","Y.hat.d","Y.hat.z","D.hat","D.ha
   if ("Y.hat.d" %in% NuPa) {Y.hat.d0 = Y.hat.d1 = matrix(NA,N,n_reps); S.d0 = S.d1 = array(0,c(n_reps,N,N))}
   if ("Y.hat.z" %in% NuPa) {Y.hat.z0 = Y.hat.z1 = matrix(NA,N,n_reps); S.z0 = S.z1 = array(0,c(n_reps,N,N))}
   if ("D.hat" %in% NuPa) D.hat = matrix(NA,N,n_reps)
-  if ("D.hat.z" %in% NuPa) {D.hat.z0 = D.hat.z1 = matrix(NA,N,n_reps); S.z0 = S.z1 = array(0,c(n_reps,N,N))}
+  if ("D.hat.z" %in% NuPa) D.hat.z0 = D.hat.z1 = matrix(NA,N,n_reps)
   if ("Z.hat" %in% NuPa) Z.hat = matrix(NA,N,n_reps)
   cf_mat = array(NA,c(n_reps,N,n_cf_folds))
   
@@ -77,14 +77,14 @@ NuPa_honest_forest = function(NuPa = c("Y.hat","Y.hat.d","Y.hat.z","D.hat","D.ha
       pred_fold = cf_mat[r,,i]
       if ("Y.hat" %in% NuPa) {
         if (isTRUE(progress)) cat(sprintf("%s [%s]: estimation of NuPa %s started\n", 
-                                          "        ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "Y.hat"))
+                                          "         ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "Y.hat"))
         rf_Yhat = regression_forest(X[train_fold,], Y[train_fold], compute.oob.predictions = F, ...)
         Y.hat[pred_fold,r] = predict(rf_Yhat, X[pred_fold,])$predictions
         S[r,pred_fold, train_fold] = as.matrix(grf::get_forest_weights(rf_Yhat, X[pred_fold,]))
       }
       if ("Y.hat.d" %in% NuPa) {
         if (isTRUE(progress)) cat(sprintf("%s [%s]: estimation of NuPa %s started\n", 
-                                          "        ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "Y.hat.d"))
+                                          "         ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "Y.hat.d"))
         rf_Yhatd0 = regression_forest(X[train_fold & D==0,], Y[train_fold & D==0], compute.oob.predictions = F, ...)
         Y.hat.d0[pred_fold,r] = predict(rf_Yhatd0, X[pred_fold,])$predictions
         S.d0[r,pred_fold, train_fold & D==0] = as.matrix(grf::get_forest_weights(rf_Yhatd0, X[pred_fold,]))
@@ -95,7 +95,7 @@ NuPa_honest_forest = function(NuPa = c("Y.hat","Y.hat.d","Y.hat.z","D.hat","D.ha
       }
       if ("Y.hat.z" %in% NuPa) {
         if (isTRUE(progress)) cat(sprintf("%s [%s]: estimation of NuPa %s started\n", 
-                                          "        ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "Y.hat.z"))
+                                          "         ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "Y.hat.z"))
         rf_Yhatz0 = regression_forest(X[train_fold & Z==0,], Y[train_fold & Z==0], compute.oob.predictions = F, ...)
         Y.hat.z0[pred_fold,r] = predict(rf_Yhatz0, X[pred_fold,])$predictions
         S.z0[r,pred_fold, train_fold  & Z==0] = as.matrix(grf::get_forest_weights(rf_Yhatz0, X[pred_fold,]))
@@ -106,13 +106,13 @@ NuPa_honest_forest = function(NuPa = c("Y.hat","Y.hat.d","Y.hat.z","D.hat","D.ha
       }
       if ("D.hat" %in% NuPa) {
         if (isTRUE(progress)) cat(sprintf("%s [%s]: estimation of NuPa %s started\n", 
-                                          "        ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "D.hat"))
+                                          "         ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "D.hat"))
         rf_Dhat = regression_forest(X[train_fold,], D[train_fold], compute.oob.predictions = F, ...)
         D.hat[pred_fold,r] = predict(rf_Dhat, X[pred_fold,])$predictions
       }
       if ("D.hat.z" %in% NuPa) {
         if (isTRUE(progress)) cat(sprintf("%s [%s]: estimation of NuPa %s started\n", 
-                                          "        ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "D.hat.z"))
+                                          "         ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "D.hat.z"))
         rf_Dhatz0 = regression_forest(X[train_fold & Z==0,], D[train_fold & Z==0], compute.oob.predictions = F, ...)
         D.hat.z0[pred_fold,r] = predict(rf_Dhatz0, X[pred_fold,])$predictions
         
@@ -121,7 +121,7 @@ NuPa_honest_forest = function(NuPa = c("Y.hat","Y.hat.d","Y.hat.z","D.hat","D.ha
       }
       if ("Z.hat" %in% NuPa) {
         if (isTRUE(progress)) cat(sprintf("%s [%s]: estimation of NuPa %s started\n", 
-                                          "        ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "Z.hat"))
+                                          "         ", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "Z.hat"))
         rf_Zhat = regression_forest(X[train_fold,], Z[train_fold], compute.oob.predictions = F, ...)
         Z.hat[pred_fold,r] = predict(rf_Zhat, X[pred_fold,])$predictions
       }

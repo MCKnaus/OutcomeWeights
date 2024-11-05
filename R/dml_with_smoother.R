@@ -1,7 +1,7 @@
 ### This is a package internal implementation of Double ML.
 
 
-#' This function runs Double ML estimators with outcome smoothers.
+#' Double ML estimators with outcome smoothers
 #'
 #' Existing Double ML implementations are too general to easily extract smoother matrices
 #' required to be compatible with the get_forest_weights() method. This motivates yet 
@@ -136,7 +136,7 @@ dml_with_smoother = function(Y,D,X,Z=NULL,
 
 
 
-#' Outcome weights for the \code{\link[grf]{causal_forest}} function
+#' Outcome weights for the \code{\link[grf]{dml_with_smoother}} function
 #'
 #' @description Post-estimation command to extract outcome weights for double ML
 #' run with an outcome smoother.
@@ -339,6 +339,8 @@ summary.dml_with_smoother = function(object,
   
   
   if(isTRUE(contrast)) {
+    if (length(estimator_names) == 1) stop("option contrast=TRUE not possible for only one estimator.")
+    
     # Number of rows in the matrix
     rows = nrow(results)
     

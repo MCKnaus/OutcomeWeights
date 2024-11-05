@@ -11,6 +11,42 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// smd_rcpp
+arma::cube smd_rcpp(arma::mat x, arma::rowvec treat, arma::mat weights, arma::mat targets);
+RcppExport SEXP _OutcomeWeights_smd_rcpp(SEXP xSEXP, SEXP treatSEXP, SEXP weightsSEXP, SEXP targetsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::rowvec >::type treat(treatSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type weights(weightsSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type targets(targetsSEXP);
+    rcpp_result_gen = Rcpp::wrap(smd_rcpp(x, treat, weights, targets));
+    return rcpp_result_gen;
+END_RCPP
+}
+// summary_smd_rcpp
+arma::cube summary_smd_rcpp(arma::cube cbr);
+RcppExport SEXP _OutcomeWeights_summary_smd_rcpp(SEXP cbrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::cube >::type cbr(cbrSEXP);
+    rcpp_result_gen = Rcpp::wrap(summary_smd_rcpp(cbr));
+    return rcpp_result_gen;
+END_RCPP
+}
+// summary_weights_rcpp
+arma::mat summary_weights_rcpp(arma::mat weights);
+RcppExport SEXP _OutcomeWeights_summary_weights_rcpp(SEXP weightsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type weights(weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(summary_weights_rcpp(weights));
+    return rcpp_result_gen;
+END_RCPP
+}
 // scaled_Ztildex_maker
 arma::mat scaled_Ztildex_maker(arma::sp_mat& alpha, const arma::colvec& res_z, const arma::colvec& res_d);
 RcppExport SEXP _OutcomeWeights_scaled_Ztildex_maker(SEXP alphaSEXP, SEXP res_zSEXP, SEXP res_dSEXP) {
@@ -26,6 +62,9 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_OutcomeWeights_smd_rcpp", (DL_FUNC) &_OutcomeWeights_smd_rcpp, 4},
+    {"_OutcomeWeights_summary_smd_rcpp", (DL_FUNC) &_OutcomeWeights_summary_smd_rcpp, 1},
+    {"_OutcomeWeights_summary_weights_rcpp", (DL_FUNC) &_OutcomeWeights_summary_weights_rcpp, 1},
     {"_OutcomeWeights_scaled_Ztildex_maker", (DL_FUNC) &_OutcomeWeights_scaled_Ztildex_maker, 3},
     {NULL, NULL, 0}
 };

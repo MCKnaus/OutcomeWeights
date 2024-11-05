@@ -32,7 +32,7 @@ library(devtools)
 install_github(repo="MCKnaus/OutcomeWeights")
 ```
 
-The following code creates synthetic data to showcase how causal forest weights are generated and that ehy perfeclty replicate the original output:
+The following code creates synthetic data to showcase how causal forest weights are extracted and that they perfectly replicate the original output:
 
 ``` r
 # Sample from DGP borrowed from grf documentation
