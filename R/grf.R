@@ -48,12 +48,13 @@
 #' omega_test = get_outcome_weights(c.forest,S = outcome_smoother,newdata = X.test)
 #' 
 #' # Observe that they perfectly replicate the original CATEs
-#' all.equal(as.numeric(omega_oob %*% Y), as.numeric(cate.oob))
-#' all.equal(as.numeric(omega_test %*% Y), as.numeric(cate.test))
+#' all.equal(as.numeric(omega_oob$omega %*% Y), as.numeric(cate.oob))
+#' all.equal(as.numeric(omega_test$omega %*% Y), as.numeric(cate.test))
 #' 
 #' # Also the ATE estimates are prefectly replicated
-#' omega_ate = get_outcome_weights(c.forest,target = "ATE", S = outcome_smoother,S.tau = omega_oob)
-#' all.equal(as.numeric(omega_ate %*% Y),
+#' omega_ate = get_outcome_weights(c.forest,target = "ATE", 
+#'                                 S = outcome_smoother,S.tau = omega_oob$omega)
+#' all.equal(as.numeric(omega_ate$omega %*% Y),
 #'           as.numeric(grf::average_treatment_effect(c.forest, target.sample = "all")[1]))
 #' 
 #' # The omega weights can be plugged into balancing packages like cobalt
@@ -72,14 +73,14 @@ get_outcome_weights.causal_forest = function(object,...,
                                              target="CATE",
                                              checks=TRUE){
   ### Extract and define important components
-  W = object$W.orig
+  D = object$W.orig
   Y = object$Y.orig
   Dhat = object$W.hat
-  Dres = W - Dhat
+  Dres = D - Dhat
   n = length(Y)
   ones = matrix(1,n,1)
   
-  ### Sanity checks
+    ### Sanity checks
   if (!(target %in% c("ATE", "CATE"))) stop("Currently online CATE and ATE as target parameters available.")
   if (is.null(S.tau) & target == "ATE") stop("You specify target == \"ATE\" but do not provide S.tau as the CATE smoother matrix.
                                             Please run get_outcome_weights first with target == \"CATE\" and pass the results as S.tau.")
@@ -115,11 +116,11 @@ get_outcome_weights.causal_forest = function(object,...,
   
   
   if (target == "ATE") {
-    lambda1 = W / Dhat
-    lambda0 = (1-W) / (1-Dhat)
+    lambda1 = D / Dhat
+    lambda0 = (1-D) / (1-Dhat)
 
     # Element-wise operations for scaling
-    scaled_S.tau = (W - Dhat) * S.tau  # Element-wise multiplication
+    scaled_S.tau = (D - Dhat) * S.tau  # Element-wise multiplication
 
     # Calculate S adjustment
     S_adjusted = diag(n) - S - scaled_S.tau
@@ -138,7 +139,16 @@ get_outcome_weights.causal_forest = function(object,...,
     }
   } # end if (target == "ATE")
   
-  return(omega)
+  output = list(
+    "omega" = omega,
+    "weights" = sweep(omega,MARGIN=2, (2 * D - 1), `*`),
+    "treat" = D,
+    "covs" = object$X.orig
+  )
+  
+  class(output) = c("get_outcome_weights")
+  
+  return(output)
 }
 
 
@@ -185,7 +195,7 @@ get_outcome_weights.causal_forest = function(object,...,
 #' omega_if = get_outcome_weights(iv.forest, S = outcome_smoother)
 #' 
 #' # Observe that they perfectly replicate the original CLATEs
-#' all.equal(as.numeric(omega_if %*% Y), as.numeric(iv.pred))
+#' all.equal(as.numeric(omega_if$omega %*% Y), as.numeric(iv.pred))
 #'
 #' }
 #' @importFrom stats predict
@@ -200,9 +210,9 @@ get_outcome_weights.instrumental_forest = function(object,...,
                                                    newdata=NULL,
                                                    checks=TRUE){
   ### Extract and define important components
-  W = object$W.orig
+  D = object$W.orig
   Y = object$Y.orig
-  Dres = W - object$W.hat
+  Dres = D - object$W.hat
   Zres = object$Z.orig - object$Z.hat
   n = length(Y)
   ones = matrix(1,n,1)
@@ -235,7 +245,16 @@ get_outcome_weights.instrumental_forest = function(object,...,
     }
   }
   
-  return(omega)
+  output = list(
+    "omega" = omega,
+    "weights" = sweep(omega,MARGIN=2, (2 * D - 1), `*`),
+    "treat" = D,
+    "covs" = object$X.orig
+  )
+  
+  class(output) = c("get_outcome_weights")
+  
+  return(output)
 }
 
 

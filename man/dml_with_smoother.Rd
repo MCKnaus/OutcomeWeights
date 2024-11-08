@@ -2,7 +2,7 @@
 % Please edit documentation in R/dml_with_smoother.R
 \name{dml_with_smoother}
 \alias{dml_with_smoother}
-\title{This function runs Double ML estimators with outcome smoothers.}
+\title{Double ML estimators with outcome smoothers}
 \usage{
 dml_with_smoother(
   Y,

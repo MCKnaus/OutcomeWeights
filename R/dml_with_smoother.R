@@ -136,24 +136,24 @@ dml_with_smoother = function(Y,D,X,Z=NULL,
 
 
 
-#' Outcome weights for the \code{\link[grf]{dml_with_smoother}} function
+#' Outcome weights for the \code{\link{dml_with_smoother}} function
 #'
 #' @description Post-estimation command to extract outcome weights for double ML
 #' run with an outcome smoother.
 #'
 #' @param object An object of class \code{dml_with_smoother}, i.e. the result of running \code{\link{dml_with_smoother}}.
 #' @param ... Pass potentially generic \link{get_outcome_weights} options.
-#' @param all_reps If \code{TRUE}, outcomes weights of each repetitions passed. Default \code{TRUE}.
+#' @param all_reps If \code{TRUE}, outcomes weights of each repetitions passed. Default \code{FALSE}.
 #'
 #' @return 
-#' - If \code{all_reps == TRUE}: Matrix of dimension (number of estimators x N) containing the outcome weights.
-#' - If \code{all_reps == FALSE}: list with two components:
-#'      - omega: Matrix of dimension (number of estimators x N) containing the outcome weights.
-#'      - omega_all_reps: A list containing the outcome weights of each repetition.
+#' - If \code{all_reps == FALSE}: \link{get_outcome_weights} object
+#' - If \code{all_reps == TRUE}: additionally list `omega_all_reps`: 
+#' A list containing the outcome weights of each repetition.
 #'
 #' @export
 #' 
-get_outcome_weights.dml_with_smoother = function(object,..., all_reps = FALSE) {
+get_outcome_weights.dml_with_smoother = function(object,..., 
+                                                 all_reps = FALSE) {
   
   # Preps
   N = object$numbers$N
@@ -225,22 +225,29 @@ get_outcome_weights.dml_with_smoother = function(object,..., all_reps = FALSE) {
       warning("Estimated Wald-AIPW using weights differ from original estimates.") }
     estimator_names = c(estimator_names, "Wald-AIPW") 
     omega = rbind(omega,colMeans(omega_waipw))  }
-
-  # Pass results
-  if (isFALSE(all_reps)) {rownames(omega) = estimator_names; return(omega)}
-  else {
+  
+  rownames(omega) = estimator_names
+  
+  output = list(
+    "omega" = omega,
+    "weights" = sweep(omega,MARGIN=2, (2 * object$data$D - 1), `*`),
+    "treat" = object$data$D,
+    "covs" = object$data$X
+  )
+  
+  if (all_reps) {
     list_all_weights = list(
       "PLR" = omega_plr,
       "PLR_IV" = omega_plriv,
       "AIPW_ATE" = omega_aipw,
       "Wald_AIPW" = omega_waipw
     )
-    output = list(
-      "omega" = omega,
-      "omega_all_reps" = list_all_weights
-    )
-    return(output)
+    output$omega_all_reps = list_all_weights
   }
+
+  class(output) = c("get_outcome_weights")
+  
+  return(output)
 }
 
 

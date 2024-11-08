@@ -13,7 +13,13 @@ get_outcome_weights(object, ...)
 See the documentation which object requires which additional arguments.}
 }
 \value{
-A vector or matrix of outcome weights.
+A list of at least these components:
+\itemize{
+\item omega: matrix (number of point estimates x number of estimation units) of outcome weights.
+\item weights: omega * (2D-1) to make it compatible with the cobalt package
+\item treat: the treament indicator to make it compatible with the cobalt package
+\item covs: the covariate matrix to make it compatible with the cobalt package
+}
 }
 \description{
 This is a generic method for getting outcome weights.

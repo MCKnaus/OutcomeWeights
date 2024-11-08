@@ -21,8 +21,9 @@
 #' 
 #' @export
 #' 
-standardized_mean_differences = function(X,treat,omega,target=NULL) {
-  
+standardized_mean_differences = function(X,treat,omega,
+                                         target=NULL) {
+
   if (!is.matrix(X) | !is.matrix(omega) | !is.matrix(target)) stop("X, omega and target must be matrices.")
   if (nrow(omega) != nrow(target)) stop("Please provide omega and target matrix with same number of rows.")
   if (is.null(colnames(X))) stop("Please provide covariate matrix X with column names.")
@@ -66,34 +67,4 @@ summary.standardized_mean_differences = function(object, ...) {
   
   return(output)
 }
-
-
-#' Calls C++ implementation to produce summary statistics of the outcome weights.
-#' 
-#' Calculates several summary measures of potentially many outcome weights.
-#' 
-#' @param omega Outcome weights matrix with dimension number of weight vectors for which balancing should be checked 
-#' x number of training units.
-#' @param treat Binary treatment variable.
-#' 
-#' @return 3D-array of dimension 
-#' - c("Control","Treated") x
-#' - number of training units x 
-#' - c("Minimum weight","Maximum weight","% Negative","Sum largest 10%","Sum of weights","Sum of absolute weights")#' 
-#' 
-#' @export
-#' 
-summarize_weights = function(omega,treat) {
-  
-  n = nrow(omega)
-  
-  array = array(NA,c(2,n,6),dimnames = list(c("Control","Treated"),seq(1:n),
-                                            c("Minimum weight","Maximum weight","% Negative","Sum largest 10%","Sum of weights","Sum of absolute weights")))
-  omega = sweep(omega,MARGIN=2, (2*treat-1), `*`)
-  array[1,,] = summary_weights_rcpp(omega[,treat==0])
-  array[2,,] = summary_weights_rcpp(omega[,treat==1])
-  
-  return(array)
-}
-
 

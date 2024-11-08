@@ -2,7 +2,7 @@
 % Please edit documentation in R/dml_with_smoother.R
 \name{get_outcome_weights.dml_with_smoother}
 \alias{get_outcome_weights.dml_with_smoother}
-\title{Outcome weights for the \code{\link[grf]{causal_forest}} function}
+\title{Outcome weights for the \code{\link{dml_with_smoother}} function}
 \usage{
 \method{get_outcome_weights}{dml_with_smoother}(object, ..., all_reps = FALSE)
 }
@@ -11,16 +11,13 @@
 
 \item{...}{Pass potentially generic \link{get_outcome_weights} options.}
 
-\item{all_reps}{If \code{TRUE}, outcomes weights of each repetitions passed. Default \code{TRUE}.}
+\item{all_reps}{If \code{TRUE}, outcomes weights of each repetitions passed. Default \code{FALSE}.}
 }
 \value{
 \itemize{
-\item If \code{all_reps == TRUE}: Matrix of dimension (number of estimators x N) containing the outcome weights.
-\item If \code{all_reps == FALSE}: list with two components:
-\itemize{
-\item omega: Matrix of dimension (number of estimators x N) containing the outcome weights.
-\item omega_all_reps: A list containing the outcome weights of each repetition.
-}
+\item If \code{all_reps == FALSE}: \link{get_outcome_weights} object
+\item If \code{all_reps == TRUE}: additionally list \code{omega_all_reps}:
+A list containing the outcome weights of each repetition.
 }
 }
 \description{

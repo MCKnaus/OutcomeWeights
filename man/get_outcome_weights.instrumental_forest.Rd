@@ -53,7 +53,7 @@ iv.pred = predict(iv.forest)$predictions
 omega_if = get_outcome_weights(iv.forest, S = outcome_smoother)
 
 # Observe that they perfectly replicate the original CLATEs
-all.equal(as.numeric(omega_if \%*\% Y), as.numeric(iv.pred))
+all.equal(as.numeric(omega_if$omega \%*\% Y), as.numeric(iv.pred))
 
 }
 }
