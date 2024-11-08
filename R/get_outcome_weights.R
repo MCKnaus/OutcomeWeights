@@ -13,10 +13,8 @@
 #' See the documentation which object requires which additional arguments.
 #'
 #' @return A list of at least these components:
-#' - omega: matrix (number of point estimates x number of estimation units) of outcome weights.
-#' - weights: omega * (2D-1) to make it compatible with the cobalt package
+#' - omega: matrix (number of point estimates x number of estimation units) of outcome weights
 #' - treat: the treament indicator to make it compatible with the cobalt package
-#' - covs: the covariate matrix to make it compatible with the cobalt package
 #'
 #' @export
 #'
@@ -71,14 +69,21 @@ summary.get_outcome_weights = function(object,
   treat = object$treat
   
   n_pe = nrow(object$omega)
+  
+  if (n_pe > 10) {
+    quiet = TRUE
+    warning("Summary of more then 10 point estimates suppressed to avoid lengthy outputs.
+            Please store the returned array and post-process it.")
+  }
+  
   if (is.null(rownames(object$omega))) pe_labels = 1:n_pe
   else pe_labels = rownames(object$omega)
   
   array = array(NA,c(2,n_pe,6),dimnames = list(c("Control","Treated"),pe_labels,
                                             c("Minimum weight","Maximum weight","% Negative","Sum largest 10%","Sum of weights","Sum of absolute weights")))
   
-  array[1,,] = summary_weights_rcpp(object$weights[,treat==0])
-  array[2,,] = summary_weights_rcpp(object$weights[,treat==1])
+  array[1,,] = summary_weights_rcpp(-object$omega[,treat==0])
+  array[2,,] = summary_weights_rcpp(object$omega[,treat==1])
   
   if (isFALSE(quiet)) {
     # Custom function to format and print values with eps notation and footnote

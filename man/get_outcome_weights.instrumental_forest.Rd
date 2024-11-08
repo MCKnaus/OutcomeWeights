@@ -21,7 +21,7 @@ out-of-bag outcome weights, otherwise for those for the provided test data retur
 know what you are doing and want to save computation time.}
 }
 \value{
-Matrix of outcome weights for the CLATEs.
+\link{get_outcome_weights} object with \code{omega} containing weights and \code{treat} the treatment
 }
 \description{
 Post-estimation command to extract outcome weights for instrumental forest

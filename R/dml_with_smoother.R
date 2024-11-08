@@ -230,9 +230,7 @@ get_outcome_weights.dml_with_smoother = function(object,...,
   
   output = list(
     "omega" = omega,
-    "weights" = sweep(omega,MARGIN=2, (2 * object$data$D - 1), `*`),
-    "treat" = object$data$D,
-    "covs" = object$data$X
+    "treat" = object$data$D
   )
   
   if (all_reps) {

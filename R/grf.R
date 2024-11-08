@@ -17,7 +17,8 @@
 #' @param checks Default \code{TRUE} checks whether weights numerically replicate original estimates. Only set \code{FALSE} if you 
 #' know what you are doing and need to save computation time.
 #'
-#' @return Matrix of outcome weights for the CATEs if \code{target = "CATE"}, otherwise vector of outcome weights for average parameters.
+#' @return \link{get_outcome_weights} object with `omega` containing weights and `treat` the treatment
+#' 
 #' @examples
 #' \donttest{
 #' # Sample from DGP borrowed from grf documentation
@@ -141,9 +142,7 @@ get_outcome_weights.causal_forest = function(object,...,
   
   output = list(
     "omega" = omega,
-    "weights" = sweep(omega,MARGIN=2, (2 * D - 1), `*`),
-    "treat" = D,
-    "covs" = object$X.orig
+    "treat" = D
   )
   
   class(output) = c("get_outcome_weights")
@@ -168,7 +167,8 @@ get_outcome_weights.causal_forest = function(object,...,
 #' @param checks Default \code{TRUE} checks whether weights numerically replicate original estimates. Only set \code{FALSE} if you 
 #' know what you are doing and want to save computation time.
 #'
-#' @return Matrix of outcome weights for the CLATEs.
+#' @return \link{get_outcome_weights} object with `omega` containing weights and `treat` the treatment
+#' 
 #' @examples
 #' \donttest{
 #' # Sample from DGP borrowed from grf documentation
@@ -247,9 +247,7 @@ get_outcome_weights.instrumental_forest = function(object,...,
   
   output = list(
     "omega" = omega,
-    "weights" = sweep(omega,MARGIN=2, (2 * D - 1), `*`),
-    "treat" = D,
-    "covs" = object$X.orig
+    "treat" = D
   )
   
   class(output) = c("get_outcome_weights")

@@ -15,10 +15,8 @@ See the documentation which object requires which additional arguments.}
 \value{
 A list of at least these components:
 \itemize{
-\item omega: matrix (number of point estimates x number of estimation units) of outcome weights.
-\item weights: omega * (2D-1) to make it compatible with the cobalt package
+\item omega: matrix (number of point estimates x number of estimation units) of outcome weights
 \item treat: the treament indicator to make it compatible with the cobalt package
-\item covs: the covariate matrix to make it compatible with the cobalt package
 }
 }
 \description{

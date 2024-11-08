@@ -34,7 +34,7 @@ with \code{target == "CATE"}.}
 know what you are doing and need to save computation time.}
 }
 \value{
-Matrix of outcome weights for the CATEs if \code{target = "CATE"}, otherwise vector of outcome weights for average parameters.
+\link{get_outcome_weights} object with \code{omega} containing weights and \code{treat} the treatment
 }
 \description{
 Post-estimation command to extract outcome weights for causal forest
