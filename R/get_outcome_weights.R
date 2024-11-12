@@ -70,7 +70,7 @@ summary.get_outcome_weights = function(object,
   
   n_pe = nrow(object$omega)
   
-  if (isTRUE(false) & n_pe > 10) {
+  if (isTRUE(quiet) & n_pe > 10) {
     quiet = TRUE
     warning("Weights summary of more then 10 point estimates suppressed to avoid lengthy outputs.
             Please use the returned array to post-process it yourself.")
