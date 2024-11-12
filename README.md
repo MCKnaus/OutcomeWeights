@@ -16,6 +16,7 @@ The package is work in progress with the current state (suggestions welcome):
   - [x] Nuisance parameter estimation based on honest random forest (`regression_forest()` of `grf` package)
   - [x] `dml_with_smoother()` function runs for PLR, PLR-IV, AIPW-ATE, and Wald_AIPW and is compatible with `get_outcome_weights()`
   - [ ] Add more Double ML estimators
+  - [ ] Add support for more smoothers
 
 ### Envisioned features
 - [ ] Compatibility with [`DoubleML`](https://docs.doubleml.org/stable/index.html) (this is a non-trivial task as the `mlr3` environment it builds on does not provide smoother matrices)
