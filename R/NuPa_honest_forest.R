@@ -1,7 +1,7 @@
 #' Nuisance parameter estimation via honest random forest
 #' 
 #' This function estimates different nuisance parameters using the honest random forest
-#' implementation of the \code{\link{grf}} package
+#' implementation of the 'grf' package
 #'
 #' @param NuPa String vector specifying the nuisance parameters to be estimated.
 #' Currently supported: \code{c("Y.hat","Y.hat.d","Y.hat.z","D.hat","D.hat.z","Z.hat")} 
