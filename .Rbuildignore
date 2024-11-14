@@ -1,3 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^dev$
+^revdep$
+^cran-comments\.md$
+^.github$
