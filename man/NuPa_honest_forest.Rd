@@ -13,7 +13,7 @@ NuPa_honest_forest(
   n_cf_folds = 5,
   n_reps = 1,
   cluster = NULL,
-  progress = TRUE,
+  progress = FALSE,
   ...
 )
 }

@@ -49,12 +49,15 @@
 #' omega_test = get_outcome_weights(c.forest,S = outcome_smoother,newdata = X.test)
 #' 
 #' # Observe that they perfectly replicate the original CATEs
-#' all.equal(as.numeric(omega_oob$omega %*% Y), as.numeric(cate.oob))
-#' all.equal(as.numeric(omega_test$omega %*% Y), as.numeric(cate.test))
+#' all.equal(as.numeric(omega_oob$omega %*% Y), 
+#'           as.numeric(cate.oob))
+#' all.equal(as.numeric(omega_test$omega %*% Y), 
+#'           as.numeric(cate.test))
 #' 
-#' # Also the ATE estimates are prefectly replicated
+#' # Also the ATE estimates are perfectly replicated
 #' omega_ate = get_outcome_weights(c.forest,target = "ATE", 
-#'                                 S = outcome_smoother,S.tau = omega_oob$omega)
+#'                                 S = outcome_smoother, 
+#'                                 S.tau = omega_oob$omega)
 #' all.equal(as.numeric(omega_ate$omega %*% Y),
 #'           as.numeric(grf::average_treatment_effect(c.forest, target.sample = "all")[1]))
 #' 
@@ -195,7 +198,8 @@ get_outcome_weights.causal_forest = function(object,...,
 #' omega_if = get_outcome_weights(iv.forest, S = outcome_smoother)
 #' 
 #' # Observe that they perfectly replicate the original CLATEs
-#' all.equal(as.numeric(omega_if$omega %*% Y), as.numeric(iv.pred))
+#' all.equal(as.numeric(omega_if$omega %*% Y), 
+#'           as.numeric(iv.pred))
 #'
 #' }
 #' @importFrom stats predict

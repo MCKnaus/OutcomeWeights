@@ -18,6 +18,6 @@ A vector of outcome weights.
 }
 \description{
 This is a generic function taking pseudo-instrument,
-pseudo-treatment and the transfmoration matrix as inputs and returning
+pseudo-treatment and the transformation matrix as inputs and returning
 outcome weights
 }

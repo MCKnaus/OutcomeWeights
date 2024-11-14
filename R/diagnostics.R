@@ -26,9 +26,9 @@ standardized_mean_differences = function(X,treat,omega,
 
   if (!is.matrix(X) | !is.matrix(omega) | !is.matrix(target)) stop("X, omega and target must be matrices.")
   if (nrow(omega) != nrow(target)) stop("Please provide omega and target matrix with same number of rows.")
-  if (is.null(colnames(X))) stop("Please provide covariate matrix X with column names.")
   if (is.null(target)) target = matrix(rep(colMeans(X), nrow(omega)), nrow = nrow(omega), byrow = TRUE)
-  if (ncol(X) != ncol(target)) stop("Please provide covariate matrix X with column names.")
+  if (ncol(X) != ncol(target)) stop("X and target must have the same column numbers.")
+  if (is.null(colnames(X))) colnames(X) = paste0("Var", seq_len(ncol(X)))
   
   output = smd_rcpp(X,treat,omega,target)
   dimnames(output) = list(colnames(X),

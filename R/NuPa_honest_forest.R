@@ -30,7 +30,7 @@ NuPa_honest_forest = function(NuPa = c("Y.hat","Y.hat.d","Y.hat.z","D.hat","D.ha
                               n_cf_folds=5,
                               n_reps=1,
                               cluster=NULL,
-                              progress=TRUE,
+                              progress=FALSE,
                               ...) {
   # Sanity checks
   supported_NuPas = c("Y.hat","Y.hat.d","Y.hat.z","D.hat","D.hat.z","Z.hat")

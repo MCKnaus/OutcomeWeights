@@ -14,7 +14,7 @@
 #'
 #' @return A list of at least these components:
 #' - omega: matrix (number of point estimates x number of estimation units) of outcome weights
-#' - treat: the treament indicator to make it compatible with the cobalt package
+#' - treat: the treatment indicator to make it compatible with the cobalt package
 #'
 #' @export
 #'
@@ -24,7 +24,7 @@ get_outcome_weights = function(object,...) UseMethod("get_outcome_weights") # ma
 #' Outcome weights maker for pseudo-IV estimators.
 #'
 #' @description This is a generic function taking pseudo-instrument,
-#' pseudo-treatment and the transfmoration matrix as inputs and returning 
+#' pseudo-treatment and the transformation matrix as inputs and returning 
 #' outcome weights
 #'
 #' @param Z.tilde Numeric vector of pseudo-instrument outcomes.

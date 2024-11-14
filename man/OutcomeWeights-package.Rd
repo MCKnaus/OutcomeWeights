@@ -4,9 +4,9 @@
 \name{OutcomeWeights-package}
 \alias{OutcomeWeights}
 \alias{OutcomeWeights-package}
-\title{OutcomeWeights: Outcome Weights of Estimators}
+\title{OutcomeWeights: Outcome Weights of Treatment Effect Estimators}
 \description{
-Many estimators can be written as weighted outcomes. This package takes the original estimator objects and outputs these outcome weights.
+Many treatment effect estimators can be written as weighted outcomes. This package takes the original estimator objects and outputs these outcome weights. It builds on the general framework to express these outcome weights in the paper "Treatment Effect Estimators as Weighted Outcomes" that is soon to appear on arXiv. Currently it is compatible with the 'grf' package and provides an internal implementation of Double Machine Learning.
 }
 \seealso{
 Useful links:
@@ -19,9 +19,9 @@ Useful links:
 \author{
 \strong{Maintainer}: Michael C. Knaus \email{michael.knaus@uni-tuebingen.de} (\href{https://orcid.org/0000-0002-7328-1363}{ORCID})
 
-Authors:
+Other contributors:
 \itemize{
-  \item Henri Pfleiderer \email{henri.1999@web.de}
+  \item Henri Pfleiderer \email{henri.1999@web.de} [contributor]
 }
 
 }

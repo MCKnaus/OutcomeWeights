@@ -262,6 +262,7 @@ get_outcome_weights.dml_with_smoother = function(object,...,
 #' psi.a in the second, and psi.b in the third column
 #'
 #' @keywords internal
+#' @noRd
 #'
 dml_inference = function(psi.a,psi.b) {
   # Extract important information

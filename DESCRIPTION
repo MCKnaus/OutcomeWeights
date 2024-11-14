@@ -1,11 +1,13 @@
 Package: OutcomeWeights
 Type: Package
-Title: Outcome Weights of Estimators
+Title: Outcome Weights of Treatment Effect Estimators
 Version: 0.1.0
-Description: Many estimators can be written as weighted outcomes. This package takes the original estimator objects and outputs these outcome weights.
+Description: Many treatment effect estimators can be written as weighted outcomes. This package takes the original estimator objects and outputs these outcome weights. 
+    It builds on the general framework to express these outcome weights in the paper "Treatment Effect Estimators as Weighted Outcomes" that is soon to appear on arXiv.
+    Currently it is compatible with the 'grf' package and provides an internal implementation of Double Machine Learning.
 Authors@R: c(
     person("Michael C.", "Knaus", email = "michael.knaus@uni-tuebingen.de", role = c("aut","cre"), comment = c(ORCID = "0000-0002-7328-1363")),
-    person("Henri", "Pfleiderer", email = "henri.1999@web.de", role = "aut")
+    person("Henri", "Pfleiderer", email = "henri.1999@web.de", role = "ctb")
     )
 License: GPL-3
 Encoding: UTF-8
@@ -20,3 +22,6 @@ LinkingTo:
     RcppArmadillo
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
