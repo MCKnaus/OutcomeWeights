@@ -23,6 +23,40 @@
 #' - \code{results}: a list storing the results, influence functions, and score functions of each estimator
 #' - \code{NuPa.hat}: a list storing the estimated nuisance parameters and the outcome smoother matrices
 #' 
+#' @examples
+#' \donttest{
+#' # Sample from DGP borrowed from grf documentation
+#' n = 200
+#' p = 5
+#' X = matrix(rbinom(n * p, 1, 0.5), n, p)
+#' Z = rbinom(n, 1, 0.5)
+#' Q = rbinom(n, 1, 0.5)
+#' W = Q * Z
+#' tau =  X[, 1] / 2
+#' Y = rowSums(X[, 1:3]) + tau * W + Q + rnorm(n)
+#' 
+#' # Run outcome regression and extract smoother matrix
+#' # Run DML and look at results
+#' dml = dml_with_smoother(Y,W,X,Z)
+#' results_dml = summary(dml)
+#' plot(dml)
+#' 
+#' # Get weights
+#' omega_dml = get_outcome_weights(dml)
+#' 
+#' # Observe that they perfectly replicate the original estimates
+#' all.equal(as.numeric(omega_dml$omega %*% Y), 
+#'           as.numeric(as.numeric(results_dml[,1])))
+#'
+#' # The weights can then be passed to the cobalt package for example.
+#' }
+#' 
+#' @references 
+#' Chernozhukov, V., Chetverikov, D., Demirer, M., Duflo, E., Hansen, C., Newey, W., & Robins, J. (2018). 
+#' Double/debiased machine learning for treatment and structural parameters. The Econometrics Journal, 21(1), C1-C68.
+#'     
+#' Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, soon on 'arXiv'.
+#'      
 #' @export
 #' 
 dml_with_smoother = function(Y,D,X,Z=NULL,
@@ -147,8 +181,11 @@ dml_with_smoother = function(Y,D,X,Z=NULL,
 #'
 #' @return 
 #' - If \code{all_reps == FALSE}: \link{get_outcome_weights} object
-#' - If \code{all_reps == TRUE}: additionally list `omega_all_reps`: 
+#' - If \code{all_reps == TRUE}: additionally list \code{omega_all_reps}: 
 #' A list containing the outcome weights of each repetition.
+#'
+#' @references 
+#' Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, soon on 'arXiv'.
 #'
 #' @export
 #' 

@@ -19,6 +19,10 @@
 #' - \code{predictions} contains the requested nuisance parameters
 #' - \code{smoothers} contains the smoother matrices of requested outcome nuisance parameters
 #' - \code{cf_mat} Array of dimension n_reps x N x n_cf_folds storing indicators representing the folds used in estimation.
+#' 
+#' @references 
+#' Wager, S., & Athey, S. (2018). Estimation and inference of heterogeneous treatment effects using random forests. 
+#' Journal of the American Statistical Association, 113(523), 1228-1242.
 #'
 #' @export
 #'

@@ -1,7 +1,8 @@
 test_that("summary_weights has correct dimensions", {
   # Set up sample data
-  n = 500
-  p = 5
+  set.seed(1234)
+  n = 100
+  p = 3
   X = matrix(rbinom(n * p, 1, 0.5), n, p)
   Z = rbinom(n, 1, 0.5)
   Q = rbinom(n, 1, 0.5)

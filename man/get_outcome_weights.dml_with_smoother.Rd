@@ -24,3 +24,6 @@ A list containing the outcome weights of each repetition.
 Post-estimation command to extract outcome weights for double ML
 run with an outcome smoother.
 }
+\references{
+Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, soon on 'arXiv'.
+}

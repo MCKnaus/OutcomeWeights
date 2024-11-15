@@ -15,6 +15,9 @@
 #' @return A list of at least these components:
 #' - omega: matrix (number of point estimates x number of estimation units) of outcome weights
 #' - treat: the treatment indicator to make it compatible with the cobalt package
+#' 
+#' @references 
+#' Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, soon on 'arXiv'.
 #'
 #' @export
 #'
@@ -32,6 +35,9 @@ get_outcome_weights = function(object,...) UseMethod("get_outcome_weights") # ma
 #' @param T_mat Transformation matrix
 #'
 #' @return A vector of outcome weights.
+#' 
+#' @references 
+#' Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, soon on 'arXiv'.
 #'
 #' @export
 #'

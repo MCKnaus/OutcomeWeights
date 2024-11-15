@@ -6,7 +6,7 @@
 \alias{OutcomeWeights-package}
 \title{OutcomeWeights: Outcome Weights of Treatment Effect Estimators}
 \description{
-Many treatment effect estimators can be written as weighted outcomes. This package takes the original estimator objects and outputs these outcome weights. It builds on the general framework to express these outcome weights in the paper "Treatment Effect Estimators as Weighted Outcomes" that is soon to appear on arXiv. Currently it is compatible with the 'grf' package and provides an internal implementation of Double Machine Learning.
+Many treatment effect estimators can be written as weighted outcomes. These weights have established use cases like checking covariate balancing via packages like 'cobalt'. This package takes the original estimator objects and outputs these outcome weights. It builds on the general framework to express of the paper "Treatment Effect Estimators as Weighted Outcomes" that is currently under construction. This version is compatible with the 'grf' package and provides an internal implementation of Double Machine Learning.
 }
 \seealso{
 Useful links:

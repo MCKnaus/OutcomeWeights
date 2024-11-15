@@ -1,7 +1,8 @@
 test_that("get_outcome_weights computes correct weights", {
   # Set up sample data
-  n = 500
-  p = 5
+  set.seed(1234)
+  n = 100
+  p = 3
   X = matrix(rbinom(n * p, 1, 0.5), n, p)
   Z = rbinom(n, 1, 0.5)
   Q = rbinom(n, 1, 0.5)
@@ -10,7 +11,7 @@ test_that("get_outcome_weights computes correct weights", {
   Y = rowSums(X[, 1:3]) + tau * D + Q + rnorm(n)
   
   # Run DML and get weights
-  dml = dml_with_smoother(Y,D,X,Z)
+  dml = dml_with_smoother(Y,D,X,Z,n_cf_folds = 2)
   results_dml = summary(dml)
   omega_dml = get_outcome_weights(dml)
   summary(omega_dml)

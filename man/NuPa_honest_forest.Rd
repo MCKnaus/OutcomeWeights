@@ -49,5 +49,9 @@ List of two lists.
 }
 \description{
 This function estimates different nuisance parameters using the honest random forest
-implementation of the \code{\link{grf}} package
+implementation of the 'grf' package
+}
+\references{
+Wager, S., & Athey, S. (2018). Estimation and inference of heterogeneous treatment effects using random forests.
+Journal of the American Statistical Association, 113(523), 1228-1242.
 }

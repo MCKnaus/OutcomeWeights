@@ -19,6 +19,9 @@
 #' - "SMD targeting 0": Standardized mean difference to assess targeting of control (Mean 0 - target) / sd(X) 
 #' - "SMD targeting 1": Standardized mean difference to assess targeting of treated (Mean 1 - target) / sd(X) 
 #' 
+#' @references Rosenbaum, P. R., & Rubin, D. B. (1984). Reducing bias in observational studies using subclassification on the propensity score. 
+#' Journal of the American Statistical Association, 79 (387), 516–524.
+#' 
 #' @export
 #' 
 standardized_mean_differences = function(X,treat,omega,
@@ -54,6 +57,9 @@ standardized_mean_differences = function(X,treat,omega,
 #' "# / % of absolute SMD > 10","# / % of absolute SMD > 5") x
 #' - c("Balancing","Targeting") x 
 #' - number of weight vectors for which balancing should be checked 
+#' 
+#' @references Rosenbaum, P. R., & Rubin, D. B. (1984). Reducing bias in observational studies using subclassification on the propensity score. 
+#' Journal of the American Statistical Association, 79 (387), 516–524.
 #' 
 #' @export
 #' 

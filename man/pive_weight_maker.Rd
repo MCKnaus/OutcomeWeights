@@ -21,3 +21,6 @@ This is a generic function taking pseudo-instrument,
 pseudo-treatment and the transformation matrix as inputs and returning
 outcome weights
 }
+\references{
+Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, soon on 'arXiv'.
+}

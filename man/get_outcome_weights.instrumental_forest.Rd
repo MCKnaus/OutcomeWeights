@@ -12,7 +12,7 @@
 \item{...}{Pass potentially generic \link{get_outcome_weights} options.}
 
 \item{S}{A smoother matrix reproducing the outcome predictions used in building the \code{\link[grf]{instrumental_forest}}.
-Obtained by calling \code{get_forest_weights()} for the \code{\link{regression_forest}} object producing the outcome predictions.}
+Obtained by calling \code{get_forest_weights()} for the \code{\link[grf]{regression_forest}} object producing the outcome predictions.}
 
 \item{newdata}{Corresponds to \code{newdata} option in \code{\link[grf]{predict.instrumental_forest}}. If \code{NULL},
 out-of-bag outcome weights, otherwise for those for the provided test data returned.}
@@ -57,4 +57,10 @@ all.equal(as.numeric(omega_if$omega \%*\% Y),
           as.numeric(iv.pred))
 
 }
+
+}
+\references{
+Athey, S., Tibshirani, J., & Wager, S. (2019). Generalized random forest. The Annals of Statistics, 47(2), 1148-1178.
+
+Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, soon on 'arXiv'.
 }

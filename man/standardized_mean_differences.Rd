@@ -33,3 +33,7 @@ where the second dimension provides the following quantities:
 Calculates standardized mean differences between treated and controls and towards target means
 for an outcome weights matrix with potentially many rows like for CATEs.
 }
+\references{
+Rosenbaum, P. R., & Rubin, D. B. (1984). Reducing bias in observational studies using subclassification on the propensity score.
+Journal of the American Statistical Association, 79 (387), 516–524.
+}

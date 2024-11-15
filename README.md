@@ -2,7 +2,12 @@
 
 This R package calculates the outcome weights of Knaus (2024). 
 
-The core functionality is the `get_outcome_weights()` method that in the future should be compatible with as many estimable objects in R as possible.
+The core functionality is the `get_outcome_weights()` method that implements the theoretical result in Proposition 1 showing that the outcome weights vector can be obtained in the general form
+$$\boldsymbol{\omega'} = (\boldsymbol{\tilde{Z}'\tilde{D}})^{-1} \boldsymbol{\tilde{Z}'T}$$
+
+where $\boldsymbol{\tilde{Z}}$, $\boldsymbol{\tilde{D}}$ and $\boldsymbol{T}$ are pseudo-instrument, pseudo-treatment and the transformation matrix, respectively. 
+
+In the future should be compatible with as many estimable objects in R as possible.
 
 The package is work in progress with the current state (suggestions welcome):
 
@@ -23,14 +28,12 @@ The package is work in progress with the current state (suggestions welcome):
   - [ ] Extract the smoother matrices of `mlr3` available, where possible
   - [ ] Make the smoother matrices of `mlr3` accessible within DoubleML
   - [ ] Write `get_outcome_weights()` method for DoubleML estimators
-- [ ] Collect packages where weights could be extracted and implements them
+- [ ] Collect packages where weights could be extracted and implement them
 
 
-The current version can be installed via devtools:
-
+The package can be downloaded via CRAN:
 ``` r
-library(devtools)
-install_github(repo="MCKnaus/OutcomeWeights")
+install.packages("OutcomeWeights")
 ```
 
 The following code creates synthetic data to showcase how causal forest weights are extracted and that they perfectly replicate the original output:
