@@ -3,5 +3,4 @@
 ^dev$
 ^revdep$
 ^cran-comments\.md$
-^.github$
-^CRAN-SUBMISSION$
+^\\.github$
