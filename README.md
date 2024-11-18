@@ -6,11 +6,10 @@ This R package calculates the outcome weights of Knaus (2024). Its use is illust
 as supplementary material to the paper.
 
 The core functionality is the `get_outcome_weights()` method that implements the theoretical result in Proposition 1 showing that the outcome weights vector can be obtained in the general form
-$$\boldsymbol{\omega'} = (\boldsymbol{\tilde{Z}'\tilde{D}})^{-1} \boldsymbol{\tilde{Z}'T}$$
-
+$\boldsymbol{\omega'} = (\boldsymbol{\tilde{Z}'\tilde{D}})^{-1} \boldsymbol{\tilde{Z}'T}$
 where $\boldsymbol{\tilde{Z}}$, $\boldsymbol{\tilde{D}}$ and $\boldsymbol{T}$ are pseudo-instrument, pseudo-treatment and the transformation matrix, respectively. 
 
-In the future should be compatible with as many estimable objects in R as possible.
+In the future it should be compatible with as many estimated R objects as possible.
 
 The package is work in progress with the current state (suggestions welcome):
 
