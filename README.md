@@ -1,6 +1,9 @@
 # Outcome Weights
 
-This R package calculates the outcome weights of Knaus (2024). 
+This R package calculates the outcome weights of Knaus (2024). Its use is illustrated in the 
+[average effects R notebook](https://mcknaus.github.io/assets/code/Notebook_Application_average_401k.nb.html) and the
+[heterogeneous effects R notebook](https://mcknaus.github.io/assets/code/Notebook_Application_heterogeneous_401k.nb.html) 
+as supplementary material to the paper.
 
 The core functionality is the `get_outcome_weights()` method that implements the theoretical result in Proposition 1 showing that the outcome weights vector can be obtained in the general form
 $$\boldsymbol{\omega'} = (\boldsymbol{\tilde{Z}'\tilde{D}})^{-1} \boldsymbol{\tilde{Z}'T}$$
@@ -31,10 +34,14 @@ The package is work in progress with the current state (suggestions welcome):
 - [ ] Collect packages where weights could be extracted and implement them
 
 
-The package can be downloaded via CRAN:
-``` r
-install.packages("OutcomeWeights")
+
+The package can be installed via devtools and soon will be available via CRAN:
+
+```R
+library(devtools)
+install_github(repo="MCKnaus/OutcomeWeights")
 ```
+
 
 The following code creates synthetic data to showcase how causal forest weights are extracted and that they perfectly replicate the original output:
 
