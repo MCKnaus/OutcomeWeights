@@ -2,10 +2,10 @@ Package: OutcomeWeights
 Type: Package
 Title: Outcome Weights of Treatment Effect Estimators
 Version: 0.1.0
-Description: Many treatment effect estimators can be written as weighted outcomes. 
+Description: Many treatment effect estimators can be written as weighted outcomes.
     These weights have established use cases like checking covariate balancing via packages like 'cobalt'.
-    This package takes the original estimator objects and outputs these outcome weights. 
-    It builds on the general framework to express of the paper "Treatment Effect Estimators as Weighted Outcomes" that is currently under construction.
+    This package takes the original estimator objects and outputs these outcome weights.
+    It builds on the general framework of Knaus (2024) <arXiv:2411.11559>.
     This version is compatible with the 'grf' package and provides an internal implementation of Double Machine Learning.
 Authors@R: c(
     person("Michael C.", "Knaus", email = "michael.knaus@uni-tuebingen.de", role = c("aut","cre"), comment = c(ORCID = "0000-0002-7328-1363")),

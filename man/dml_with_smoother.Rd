@@ -82,5 +82,5 @@ all.equal(as.numeric(omega_dml$omega \%*\% Y),
 Chernozhukov, V., Chetverikov, D., Demirer, M., Duflo, E., Hansen, C., Newey, W., & Robins, J. (2018).
 Double/debiased machine learning for treatment and structural parameters. The Econometrics Journal, 21(1), C1-C68.
 
-Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, soon on 'arXiv'.
+Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, \url{https://arxiv.org/abs/2411.11559}.
 }

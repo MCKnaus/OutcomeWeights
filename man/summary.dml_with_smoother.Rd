@@ -15,6 +15,10 @@
 
 \item{...}{further arguments passed to \code{printCoefmat}}
 }
+\value{
+Invisible matrix with estimator(s) in the rows and
+c("Estimate","SE","t","p") in the columns.
+}
 \description{
 \code{summary} method for class \code{\link{dml_with_smoother}}
 }

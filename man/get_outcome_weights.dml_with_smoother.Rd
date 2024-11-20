@@ -25,5 +25,5 @@ Post-estimation command to extract outcome weights for double ML
 run with an outcome smoother.
 }
 \references{
-Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, soon on 'arXiv'.
+Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, \url{https://arxiv.org/abs/2411.11559}.
 }

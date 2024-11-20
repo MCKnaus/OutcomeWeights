@@ -15,6 +15,9 @@
 
 \item{contrast}{Shows the differences between the coefficients.}
 }
+\value{
+ggplot with point estimates and confidence intervals.
+}
 \description{
 \code{plot} method for class \code{\link{dml_with_smoother}}
 }

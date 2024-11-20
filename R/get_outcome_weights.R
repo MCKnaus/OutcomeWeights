@@ -17,7 +17,7 @@
 #' - treat: the treatment indicator to make it compatible with the cobalt package
 #' 
 #' @references 
-#' Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, soon on 'arXiv'.
+#' Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, \url{https://arxiv.org/abs/2411.11559}.
 #'
 #' @export
 #'

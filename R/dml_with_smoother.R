@@ -55,7 +55,7 @@
 #' Chernozhukov, V., Chetverikov, D., Demirer, M., Duflo, E., Hansen, C., Newey, W., & Robins, J. (2018). 
 #' Double/debiased machine learning for treatment and structural parameters. The Econometrics Journal, 21(1), C1-C68.
 #'     
-#' Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, soon on 'arXiv'.
+#' Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, \url{https://arxiv.org/abs/2411.11559}.
 #'      
 #' @export
 #' 
@@ -185,7 +185,7 @@ dml_with_smoother = function(Y,D,X,Z=NULL,
 #' A list containing the outcome weights of each repetition.
 #'
 #' @references 
-#' Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, soon on 'arXiv'.
+#' Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, \url{https://arxiv.org/abs/2411.11559}.
 #'
 #' @export
 #' 
@@ -336,6 +336,9 @@ dml_inference = function(psi.a,psi.b) {
 #' @param contrast Tests the differences between the coefficients.
 #' @param quiet If TRUE, results are passed but not printed.
 #' @param ... further arguments passed to \code{printCoefmat}
+#' 
+#' @return Invisible matrix with estimator(s) in the rows and
+#' c("Estimate","SE","t","p") in the columns.
 #'
 #' @export
 #'
@@ -428,6 +431,8 @@ summary.dml_with_smoother = function(object,
 #' @param ... Pass generic \code{\link[base]{plot}} options.
 #' @param alpha Significance level for confidence intervals (default 0.05).
 #' @param contrast Shows the differences between the coefficients.
+#' 
+#' @return ggplot with point estimates and confidence intervals.
 #' 
 #' @import ggplot2
 #'

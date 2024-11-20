@@ -67,7 +67,7 @@
 #' @references 
 #' Athey, S., Tibshirani, J., & Wager, S. (2019). Generalized random forest. The Annals of Statistics, 47(2), 1148-1178.
 #' 
-#' Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, soon on 'arXiv'.
+#' Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, \url{https://arxiv.org/abs/2411.11559}.
 #' 
 #' @importFrom stats predict
 #' @importFrom methods as
@@ -212,7 +212,7 @@ get_outcome_weights.causal_forest = function(object,...,
 #' @references 
 #' Athey, S., Tibshirani, J., & Wager, S. (2019). Generalized random forest. The Annals of Statistics, 47(2), 1148-1178.
 #' 
-#' Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, soon on 'arXiv'.
+#' Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, \url{https://arxiv.org/abs/2411.11559}.
 #' 
 #' @importFrom stats predict
 #' @importFrom methods as
