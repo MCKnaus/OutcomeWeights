@@ -11,7 +11,12 @@ where $\boldsymbol{\tilde{Z}}$, $\boldsymbol{\tilde{D}}$ and $\boldsymbol{T}$ ar
 
 In the future it should be compatible with as many estimated R objects as possible.
 
-The package is work in progress with the current state (suggestions welcome):
+The package can be downloaded from CRAN:
+```R
+install.packages("OutcomeWeights")
+```
+
+The package is work in progress. Find here the current state (suggestions welcome):
 
 ### In progress
 - [ ] Compatibility with [`grf`](https://grf-labs.github.io/grf/) package
@@ -33,18 +38,12 @@ The package is work in progress with the current state (suggestions welcome):
 - [ ] Collect packages where weights could be extracted and implement them
 
 
-
-The package can be installed via devtools and soon will be available via CRAN:
-
-```R
-library(devtools)
-install_github(repo="MCKnaus/OutcomeWeights")
-```
-
-
 The following code creates synthetic data to showcase how causal forest weights are extracted and that they perfectly replicate the original output:
 
 ``` r
+if (!require("OutcomeWeights")) install.packages("OutcomeWeights", dependencies = TRUE)
+library(OutcomeWeights)
+
 # Sample from DGP borrowed from grf documentation
 n = 500
 p = 10
@@ -84,6 +83,13 @@ all.equal(as.numeric(omega_ate$omega %*% Y),
           as.numeric(grf::average_treatment_effect(c.forest, target.sample = "all")[1]))
 ```
 
+
+The development version is available using the `devtools` package:
+```R
+library(devtools)
+install_github(repo="MCKnaus/OutcomeWeights")
+```
+
 ## References
 
-Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, soon on arXiv
+Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, [arXiv:2411.11559](https://arxiv.org/abs/2411.11559)
