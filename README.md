@@ -1,5 +1,13 @@
 # Outcome Weights
 
+<!-- badges: start -->
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/OutcomeWeights)](https://CRAN.R-project.org/package=OutcomeWeights)
+[![License](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![Downloads_Total](https://cranlogs.r-pkg.org/badges/grand-total/OutcomeWeights)](https://CRAN.R-project.org/package=OutcomeWeights)
+[![Downloads_Monthly](https://cranlogs.r-pkg.org/badges/OutcomeWeights)](https://CRAN.R-project.org/package=OutcomeWeights)
+[![Project_Status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+<!-- badges: end -->
+
 This R package calculates the outcome weights of Knaus (2024). Its use is illustrated in the 
 [average effects R notebook](https://mcknaus.github.io/assets/code/Notebook_Application_average_401k.nb.html) and the
 [heterogeneous effects R notebook](https://mcknaus.github.io/assets/code/Notebook_Application_heterogeneous_401k.nb.html) 
