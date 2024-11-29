@@ -8,12 +8,12 @@
 [![Project_Status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 <!-- badges: end -->
 
-This R package calculates the outcome weights of Knaus (2024). Its use is illustrated in the 
+This R package calculates the outcome weights of [Knaus (2024)](https://arxiv.org/abs/2411.11559). Its use is illustrated in the 
 [average effects R notebook](https://mcknaus.github.io/assets/code/Notebook_Application_average_401k.nb.html) and the
 [heterogeneous effects R notebook](https://mcknaus.github.io/assets/code/Notebook_Application_heterogeneous_401k.nb.html) 
 as supplementary material to the paper.
 
-The core functionality is the `get_outcome_weights()` method that implements the theoretical result in Proposition 1 showing that the outcome weights vector can be obtained in the general form
+The core functionality is the `get_outcome_weights()` method implementing the theoretical result in Proposition 1 of the paper. It shows that the outcome weights vector can be obtained in the general form
 $\boldsymbol{\omega'} = (\boldsymbol{\tilde{Z}'\tilde{D}})^{-1} \boldsymbol{\tilde{Z}'T}$
 where $\boldsymbol{\tilde{Z}}$, $\boldsymbol{\tilde{D}}$ and $\boldsymbol{T}$ are pseudo-instrument, pseudo-treatment and the transformation matrix, respectively. 
 
