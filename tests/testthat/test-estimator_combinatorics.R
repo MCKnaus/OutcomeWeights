@@ -1,4 +1,5 @@
 test_that("all estimator combinations run", {
+  skip_on_cran()
   # Set up sample data
   set.seed(1234)
   n = 100
