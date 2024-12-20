@@ -42,11 +42,11 @@ NuPa_honest_forest = function(NuPa = c("Y.hat","Y.hat.d","Y.hat.z","D.hat","D.ha
   if (length(not_supported) > 0) {
     stop(paste("Error: The following nuisance parameters specified in NuPa are not supported:", 
                paste(not_supported, collapse = ", ")))}
-  if (is.null(Y) & any(sapply(NuPa, function(x) grepl(x, c("Y.hat","Y.hat.d","Y.hat.z"))))) {
+  if (is.null(Y) & any(NuPa %in% c("Y.hat","Y.hat.d","Y.hat.z"))) {
     stop("Please specify Y if at least one of c(\"Y.hat\",\"Y.hat.d\",\"Y.hat.z\") is specified in NuPa")}
-  if (is.null(D) & any(sapply(NuPa, function(x) grepl(x, c("Y.hat.d","D.hat","D.hat.z"))))) {
+  if (is.null(D) & any(NuPa %in% c("Y.hat.d","D.hat","D.hat.z"))) {
     stop("Please specify D if at least one of c(\"Y.hat.d\",\"D.hat\",\"D.hat.z\") is specified in NuPa")}
-  if (is.null(Z) & any(sapply(NuPa, function(x) grepl(x, c("Y.hat.z","D.hat.z","Z.hat"))))) {
+  if (is.null(Z) & any(NuPa %in% c("Y.hat.z","D.hat.z","Z.hat"))) {
     stop("Please specify Z if at least one of c(\"Y.hat.z\",\"D.hat.z\",\"Z.hat\") is specified in NuPa")}
   
   # Preps
