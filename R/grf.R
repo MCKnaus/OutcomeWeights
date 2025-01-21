@@ -91,7 +91,7 @@ get_outcome_weights.causal_forest = function(object,...,
   ones = matrix(1,n,1)
   
     ### Sanity checks
-  if (!(target %in% c("ATE", "CATE"))) stop("Currently online CATE and ATE as target parameters available.")
+  if (!(target %in% c("ATE", "CATE"))) stop("Currently only CATE and ATE as target parameters available.")
   if (is.null(S.tau) & target == "ATE") stop("You specify target == \"ATE\" but do not provide S.tau as the CATE smoother matrix.
                                             Please run get_outcome_weights first with target == \"CATE\" and pass the results as S.tau.")
   if (!is.null(newdata) & target == "ATE") warning("newdata ignored when calculating ATE weights.")
@@ -136,9 +136,9 @@ get_outcome_weights.causal_forest = function(object,...,
     S_adjusted = diag(n) - S - scaled_S.tau
 
     # Compute the final matrix
-    omage_aipw_grf = S.tau + (lambda1 - lambda0) * S_adjusted  # Element-wise multiplication
+    omega_aipw_grf = S.tau + (lambda1 - lambda0) * S_adjusted  # Element-wise multiplication
 
-    omega = matrix(t(ones) %*% omage_aipw_grf/ n,nrow=1)
+    omega = matrix(t(ones) %*% omega_aipw_grf/ n,nrow=1)
     
     if (checks) {
       cates_cf = predict(object)$predictions
