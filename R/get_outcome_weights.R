@@ -6,9 +6,10 @@
 #'
 #' @description This is a generic method for getting outcome weights. 
 #' It calculates the outcome weights for objects created by other packages.
-#' See get_outcome_weight.<compatible_fct> in the package documentation for compatible functions.
 #'
-#' @param object An object, obtained from other packages.
+#' @param object An estimated object. 
+#' See get_outcome_weight.<compatible_fct> in the package documentation for compatible object classes.
+#' 
 #' @param ... Additional arguments specific to object class implementations. 
 #' See the documentation which object requires which additional arguments.
 #'
