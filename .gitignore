@@ -13,3 +13,7 @@ src/*.dll
 .quarto
 revdep/
 cran-comments.md
+docs
+inst/doc
+/doc/
+/Meta/

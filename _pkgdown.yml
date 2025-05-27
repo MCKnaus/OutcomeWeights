@@ -1,0 +1,39 @@
+pkgdown:
+  title: "OutcomeWeights"
+  url: https://mcknaus.github.io/OutcomeWeights/
+
+template:
+  bootstrap: 5
+  math-rendering: katex # for better math rendering
+  light-switch: true
+
+navbar:
+  structure:
+    left: [home, articles, reference, news]
+    right: [search, github, lightswitch]
+  components:
+    home:
+      text: "Home"
+      href: index.html
+    articles:
+      text: "Vignettes"
+      menu:
+        - text: "AIPW vs. RA and IPW"
+          href: articles/NB_OutcomeWeights_AIPW_401k.html
+        - text: "Theory in action"
+          href: articles/Theory_in_action_outcome_weights.html
+        - text: "Application 401(k) - average effects"
+          href: articles/Application_average_401k.html
+        - text: "Application 401(k) - heterogeneous effects"
+          href: articles/Application_heterogeneous_401k.html
+    reference:
+      text: "📖 Reference"
+      href: reference/index.html
+    github:
+      icon: fa-github
+      href: https://github.com/MCKnaus/OutcomeWeights
+      
+# To have white background for plots in the dark mode
+figures:
+  bg: white
+  

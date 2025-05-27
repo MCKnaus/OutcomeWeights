@@ -1,0 +1,470 @@
+---
+title: "Theory in action"
+subtitle: ""
+author: "Michael C. Knaus"
+date: "`r format(Sys.time(), '%m/%y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Theory in action}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Setting the stage
+
+## Managing expectations
+
+This notebook illustrates the theoretical derivations of [Knaus (2024)](https://arxiv.org/abs/2411.11559). We keep everything as simple as possible meaning that
+
+- we use the cleaned and readily available 401(k) data of the `hdm` package, which includes a treatment and an instrument
+
+- we use the `regression_forest()` of the `grf` to estimate nuisance parameters because this is the only ML method with a build-in function to extract smoother weights
+
+- we hand-code two-fold cross-validation with `regression_forest()` and use the same nuisance parameters for different estimators
+
+- we do no tune the hyperparameters and stick to the default setting
+
+- we only consider causal/instrumental forest effect estimates for one unit and not for all 9915
+
+- we stick as close as possible to the paper notation
+
+However, the code provides the basis to extend the analysis in different directions. To this end, click on the "Code" button at the top right and "Download Rmd".
+
+This notebooks is only for illustration. The [`OutcomeWeights`](https://github.com/MCKnaus/OutcomeWeights) R package implements everything in a more user friendly way.
+
+## Load packages and data
+
+First, load the relevant packages
+
+```{r, warning = F, message = F}
+if (!require("cobalt")) install.packages("cobalt", dependencies = TRUE); library(cobalt)
+if (!require("grf")) install.packages("grf", dependencies = TRUE); library(grf)
+if (!require("hdm")) install.packages("hdm", dependencies = TRUE); library(hdm)
+if (!require("gridExtra")) install.packages("gridExtra", dependencies = TRUE); library(gridExtra)
+if (!require("tidyverse")) install.packages("tidyverse", dependencies = TRUE); library(tidyverse)
+if (!require("AER")) install.packages("AER", dependencies = TRUE); library(AER)
+```
+
+and the data
+
+```{r}
+data(pension) # Find variable description if you type ?pension in console
+# Treatment
+D = pension$p401
+# Instrument
+Z = pension$e401
+# Outcome
+Y = pension$net_tfa
+# Controls
+X = model.matrix(~ 0 + age + db + educ + fsize + hown + inc + male + marr + pira + twoearn, data = pension)
+colnames(X) = c("Age","Benefit pension","Education","Family size","Home owner","Income","Male","Married","IRA","Two earners")
+```
+
+Define useful quantities and set the seed:
+
+```{r}
+# Helpful variables
+N = length(Y)
+ones = matrix(1,N,1)
+
+# Choose unit for which causal/instrumental forest weights should be calculated
+unit = 1
+
+# Define number of folds for cross-fitting
+nfolds = 2
+
+set.seed(1234)
+```
+
+## One function to calculate them all
+
+Proposition 1 in the paper shows that the outcome weights vector can be obtained in the general form
+$$\boldsymbol{\omega'} = (\boldsymbol{\tilde{Z}'\tilde{D}})^{-1} \boldsymbol{\tilde{Z}'T}$$
+
+where $\boldsymbol{\tilde{Z}}$, $\boldsymbol{\tilde{D}}$ and $\boldsymbol{T}$ are pseudo-instrument, pseudo-treatment and the transformation matrix, respectively. 
+
+This motivates the definition of the `weight_maker(Dtilde,Ztilde,T_mat)` function taking the three generic inputs and producing the outcome weights vector:
+
+```{r}
+weight_maker = function(Dtilde,Ztilde,T_mat) {
+  omega = (t(Ztilde) %*% Dtilde)^(-1) %*% t(Ztilde) %*% T_mat
+  return(omega)
+}
+```
+
+In the following, we just need to define the three components for the respective estimators and plug them into this generic function to obtain the outcome weights.
+
+
+## Estimate all nuisance parameters and get outcome smoother matrices
+
+Equation (8) in the paper shows which nuisance parameters are required for the estimators under consideration. Here, we estimate them all using honest random forest and 2-fold cross-fitting. Additionally, we extract the relevant smoother matrices $\boldsymbol{S}$, $\boldsymbol{S^d_0}$, $\boldsymbol{S^d_1}$, $\boldsymbol{S^z_0}$, and $\boldsymbol{S^z_1}$.
+
+```{r}
+# Get fold number
+fold = sample(1:nfolds,N,replace=T)
+
+# Initialize nuisance parameters
+Yhat = Yhatd0 = Yhatd1 = Yhatz0 = Yhatz1 = 
+  Dhat = Dhatz0 = Dhatz1 = Zhat = rep(NA,N)
+
+# Initialize smoother matrices
+S = Sd0 = Sd1 = Sz0 = Sz1 = matrix(0,N,N)
+
+for (i in 1:nfolds){
+  # Calculate nuisance parameters and relevant smoother matrices
+  rf_Yhat = regression_forest(X[fold != i,],Y[fold != i])
+  Yhat[fold == i] = predict(rf_Yhat, X[fold == i,])$predictions
+  S[fold == i, fold != i] = as.matrix(get_forest_weights(rf_Yhat, X[fold == i,]))
+
+  rf_Yhatd0 = regression_forest(X[fold != i & D==0,],Y[fold != i & D==0])
+  Yhatd0[fold == i] = predict(rf_Yhatd0, X[fold == i,])$predictions
+  Sd0[fold == i, fold != i  & D==0] = as.matrix(get_forest_weights(rf_Yhatd0, X[fold == i,]))
+
+  rf_Yhatd1 = regression_forest(X[fold != i & D==1,],Y[fold != i & D==1])
+  Yhatd1[fold == i] = predict(rf_Yhatd1, X[fold == i,])$predictions
+  Sd1[fold == i, fold != i  & D==1] = as.matrix(get_forest_weights(rf_Yhatd1, X[fold == i,]))
+
+  rf_Yhatz0 = regression_forest(X[fold != i & Z==0,],Y[fold != i & Z==0])
+  Yhatz0[fold == i] = predict(rf_Yhatz0, X[fold == i,])$predictions
+  Sz0[fold == i, fold != i  & Z==0] = as.matrix(get_forest_weights(rf_Yhatz0, X[fold == i,]))
+  
+  rf_Yhatz1 = regression_forest(X[fold != i & Z==1,],Y[fold != i & Z==1])
+  Yhatz1[fold == i] = predict(rf_Yhatz1, X[fold == i,])$predictions
+  Sz1[fold == i, fold != i  & Z==1] = as.matrix(get_forest_weights(rf_Yhatz1, X[fold == i,]))
+  
+  rf_Dhat = regression_forest(X[fold != i,],D[fold != i])
+  Dhat[fold == i] = predict(rf_Dhat, X[fold == i,])$predictions
+  
+  rf_Dhatz0 = regression_forest(X[fold != i & Z==0,],D[fold != i & Z==0])
+  Dhatz0[fold == i] = predict(rf_Dhatz0, X[fold == i,])$predictions
+  
+  rf_Dhatz1 = regression_forest(X[fold != i & Z==1,],D[fold != i & Z==1])
+  Dhatz1[fold == i] = predict(rf_Dhatz1, X[fold == i,])$predictions
+  
+  rf_Zhat = regression_forest(X[fold != i,],Z[fold != i])
+  Zhat[fold == i] = predict(rf_Zhat, X[fold == i,])$predictions
+}
+```
+
+For those not familiar with smoothers, let's observe that they produce exactly the same predictions as the original `predict()` functions:
+```{r}
+cat("Smoother matrices replicate predicted nuisance parameter?",
+ all(
+  all.equal(as.numeric(S %*% Y), Yhat) == TRUE,
+  all.equal(as.numeric(Sd0 %*% Y), Yhatd0) == TRUE,
+  all.equal(as.numeric(Sd1 %*% Y), Yhatd1) == TRUE,
+  all.equal(as.numeric(Sz0 %*% Y), Yhatz0) == TRUE,
+  all.equal(as.numeric(Sz1 %*% Y), Yhatz1) == TRUE)
+)
+```
+
+Also observe that random forest is an affine smoother because all rows add up exactly to one:
+```{r}
+cat("Affine smoother matrices?",
+all(
+  all.equal(as.numeric(ones),as.numeric(rowSums(S))) == TRUE,
+  all.equal(as.numeric(ones),as.numeric(rowSums(Sd0))) == TRUE,
+  all.equal(as.numeric(ones),as.numeric(rowSums(Sd1))) == TRUE,
+  all.equal(as.numeric(ones),as.numeric(rowSums(Sz0))) == TRUE,
+  all.equal(as.numeric(ones),as.numeric(rowSums(Sz1))) == TRUE)
+)
+```
+
+Finally, define the different IPW weights for later use:
+```{r}
+lambda1 = D / Dhat
+lambda0 = (1-D) / (1-Dhat)
+lambdaz1 = Z / Zhat
+lambdaz0 = (1-Z) / (1-Zhat)
+```
+
+
+# Outcome weights of DML and GRF
+
+## Instrumental forest
+
+### To be replicated
+
+Here, we want to replicate the CLATE estimate for unit `r unit`. To this end, we first run `instrumental_forest()` with the pre-defined nuisance parameters:
+```{r}
+# Run IF with the pre-specified nuisance parameters
+ivf = instrumental_forest(X,Y,D,Z,Y.hat=Yhat,W.hat=Dhat,Z.hat=Zhat)
+# Get CLATEs 
+clates_if = predict(ivf)$predictions
+```
+
+The estimated CLATE for unit `r unit` is then `r clates_if[unit] `, which becomes the number to be replicated:
+```{r}
+to_be_rep_if = clates_if[unit]
+to_be_rep_if
+```
+
+### Nearly replication
+
+According to the main text of the paper, we need the following components 
+$$\boldsymbol{\hat{R}} = \boldsymbol{Z} - \boldsymbol{\hat{Z}}, \quad \boldsymbol{\hat{V}} = \boldsymbol{D} - \boldsymbol{\hat{D}}, \quad \boldsymbol{\hat{U}} = \boldsymbol{Y} - \boldsymbol{\hat{Y}}, \quad \alpha^{if}(\boldsymbol{x})$$
+that are defined in the following
+```{r}
+Uhat = Y - Yhat
+Vhat = D - Dhat
+Rhat = Z - Zhat
+alpha_if = get_forest_weights(ivf)[unit,]
+```
+
+Now define the pseudo-variables and the transformation matrix:
+```{r}
+Ztilde_if = Rhat * alpha_if
+Dtilde_if = Vhat
+Ytilde_if = Uhat
+T_if = diag(N) - S
+```
+
+As a sanity check observe how the transformation matrix replicates the pseudo-outcome:
+```{r}
+cat("TY replicates pseudo-outcome?",
+  all.equal(as.numeric( T_if %*% Y ), Uhat))
+```
+
+Now we pass the required components to the `weight_maker()` function
+```{r}
+omega_if = weight_maker(Dtilde_if, Ztilde_if, T_if)
+repl_wo_const = omega_if %*% Y
+```
+
+This estimates an effect of `r repl_wo_const`, which is very close but not identical to the number to be replicated:
+```{r}
+all.equal(as.numeric( repl_wo_const ), to_be_rep_if)
+```
+
+### Exact replication
+
+As noted in Appendix A.3.1, the grf package applies an additional constant which requires to adjust the pseudo-instrument:
+```{r}
+# Create weighted residual maker matrix
+M1_inv = solve(t(ones) %*% diag(alpha_if) %*% ones)
+P1 = (ones %*% M1_inv) %*% (t(ones) %*% diag(alpha_if))
+M1 = diag(N) - P1
+# Get modified pseudo-instrument
+Ztilde_if = (M1 %*% Rhat) * alpha_if
+```
+
+Plugging this new pseudo-instrument into the `weight_maker()` function creates outcome weights that now perfectly replicate the package output:
+```{r}
+# Get if outcome weights
+omega_if = weight_maker(Dtilde_if, Ztilde_if, T_if) 
+cat("ω'Y replicates package output?",all.equal(as.numeric( omega_if %*% Y ), to_be_rep_if))
+```
+
+## Partially linear IV regression
+
+To obtain the standard partially linear IV regression, we first solve the canonical moment condition to see which value should be replicated:
+```{r}
+to_be_rep_plriv = mean(Rhat * Uhat) / mean(Rhat * Vhat)
+to_be_rep_plriv
+```
+
+Compared to IF, we only need to pass a different pseudo-instrument to the `weight_maker` to replicate this number:
+```{r}
+# Modified pseudo-instrument
+Ztilde_plriv = Rhat * ones
+# Get outcome weights
+omega_plriv = weight_maker(Dtilde_if, Ztilde_plriv, T_if) 
+cat("ω'Y replicates moment based implentation?",all.equal(as.numeric( omega_plriv %*% Y ), to_be_rep_plriv))
+```
+
+
+## Causal forest
+
+### To be replicated
+
+Here, we want to replicate the CATE estimate for unit `r unit`. To this end, we first run the `causal_forest()` with the pre-defined nuisance parameters:
+```{r}
+cf = causal_forest(X,Y,D,Y.hat=Yhat,W.hat=Dhat)
+cates_cf = predict(cf)$predictions
+```
+
+The estimated CATE for unit `r unit` is then `r cates_cf[unit] `, which becomes the number to be replicated:
+```{r}
+to_be_rep_cf = cates_cf[unit]
+```
+
+### Exact replication
+
+Causal forest works similar to instrumental forest but requires weight $\alpha^{cf}(\boldsymbol{x})$ to enter the pseudo-instrument:
+```{r}
+alpha_cf = get_forest_weights(cf)[unit,]
+M1_inv = solve(t(ones) %*% diag(alpha_cf) %*% ones)
+P1 = (ones %*% M1_inv) %*% (t(ones) %*% diag(alpha_cf))
+M1 = diag(N) - P1
+# Get pseudo-instrument
+Ztilde_cf = (M1 %*% Vhat) * alpha_cf
+```
+
+Plugging this new pseudo-instrument into the `weight_maker()` function again perfectly replicates the package output:
+```{r}
+# Get cf outcome weights
+omega_cf = weight_maker(Dtilde_if, Ztilde_cf, T_if) 
+cat("ω'Y replicates package output?",
+    all.equal(as.numeric( omega_cf %*% Y ), to_be_rep_cf))
+```
+
+## Partially linear regression
+
+To obtain the standard partially linear regression, we first solve the canonical moment condition to see which value should be replicated:
+```{r}
+to_be_rep_plr = mean(Vhat * Uhat) / mean(Vhat * Vhat)
+to_be_rep_plr
+```
+
+Compared to CF, we only need to pass a different pseudo-instrument to the `weight_maker()` function to replicate this number:
+```{r}
+# Modified pseudo-instrument
+Ztilde_plr = Vhat * ones
+# Get outcome weights
+omega_plr = weight_maker(Dtilde_if, Ztilde_plr, T_if) 
+cat("ω'Y replicates moment based implementation?",
+    all.equal(as.numeric( omega_plr %*% Y ), to_be_rep_plr))
+```
+
+## Augmented inverse probability weighting
+
+The AIPW uses a large pseudo-outcome and takes the mean of it:
+```{r}
+Ytilde_aipw = Yhatd1 - Yhatd0 + lambda1 * (Y - Yhatd1) - lambda0 * (Y- Yhatd0)
+to_be_rep_aipw = mean(Ytilde_aipw)
+to_be_rep_aipw
+```
+
+To replicate this number with outcome weights, we need to implement the transformation matrix
+```{r}
+# Taipw = Sd1 - Sd0 + diag(lambda1) %*% (diag(N) - Sd1) - diag(lambda0) %*% (diag(N) - Sd0) # slow
+T_aipw = Sd1 - Sd0 + lambda1 * (diag(N) - Sd1) - lambda0 * (diag(N) - Sd0)
+```
+
+and plug it into the weight maker to replicate the number:
+```{r}
+omega_aipw = weight_maker(ones, ones, T_aipw) 
+cat("ω'Y replicates standard implementation?",
+    all.equal(as.numeric( omega_aipw %*% Y ), to_be_rep_aipw))
+```
+
+## Wald AIPW
+
+The moment based representation is the ratio of to average treatment effects estimated with AIPW:
+```{r}
+Dtilde_ivaipw = Dhatz1 - Dhatz0 + Z / Zhat * (D - Dhatz1) - (1 - Z) / (1 - Zhat) * (D - Dhatz0)
+
+Ytilde_ivaipw = Yhatz1 - Yhatz0 + Z / Zhat * (Y - Yhatz1) - (1 - Z) / (1 - Zhat) * (Y - Yhatz0)
+
+ITT_y = mean(Ytilde_ivaipw)
+ITT_d = mean(Dtilde_ivaipw)
+
+to_be_rep_waipw = ITT_y / ITT_d
+to_be_rep_waipw
+```
+
+Again the transformation matrix is the involved part but we also have a non-one pseudo-treatment:
+```{r}
+# T_waipw = Sz1 - Sz0 + diag(lambdaz1) %*% (diag(n) - Sz1) - diag(lambdaz0) %*% (diag(n) - Sz0)
+T_waipw = Sz1 - Sz0 + lambdaz1 * (diag(N) - Sz1) - lambdaz0 * (diag(N) - Sz0)
+
+Dtilde_waipw = ones * ITT_d
+
+omega_waipw = weight_maker(Dtilde_waipw, ones, T_waipw)
+cat("ω'Y replicates standard implementation?",
+    all.equal(as.numeric( omega_waipw %*% Y ), to_be_rep_waipw))
+```
+
+
+# Outcome weights of special cases
+
+## TSLS
+
+We can similarly extract the outcome weights of TSLS to replicate the standard implementation of the `AER` package:
+
+```{r}
+tsls = ivreg(Y ~ D + X  | X + Z)
+summary(tsls)
+to_be_rep_tsls = tsls$coefficient[2]
+```
+
+We now use residuals produced by the residual maker matrix as pseudo-instrument and -treatment, and the residual maker matrix as transformation matrix:
+
+```{r}
+# Get residuals
+Ztilde_tsls = lm(Z ~ X)$residuals
+Dtilde_tsls = lm(D ~ X)$residuals
+
+# Get projection matrix
+Xcons = model.matrix(~ X)
+PX = Xcons %*% solve(crossprod(Xcons)) %*% t(Xcons)
+# Get residual maker matrix
+MX = diag(N) - PX
+
+# Create TSLS
+omega_tsls = weight_maker(Dtilde_tsls, Ztilde_tsls, MX) 
+
+cat("ω'Y replicates standard implementation?",
+    all.equal(as.numeric( omega_tsls %*% Y ), as.numeric(to_be_rep_tsls)))
+
+```
+
+## Wald estimator
+
+The Wald estimator is replicated using the residual maker matrix of a constant:
+
+```{r}
+# Get residuals
+Ztilde_wald = lm(Z ~ 1)$residuals
+Dtilde_wald = lm(D ~ 1)$residuals
+
+# Get standard implementation
+wald = ivreg(Y ~ D | Z)
+to_be_rep_wald = wald$coefficient[2]
+
+# Get projection and residual maker matrix of ones
+P1 = ones %*% solve(crossprod(ones)) %*% t(ones)
+M1 = diag(N) - P1
+
+# Create TSLS
+omega_wald = weight_maker(Dtilde_wald, Ztilde_wald, M1) 
+
+cat("ω'Y replicates standard implementation?",
+    all.equal(as.numeric( omega_wald %*% Y ), as.numeric(to_be_rep_wald)))
+```
+
+
+## OLS
+
+To replicate OLS, we can just recycle the linear treatment residuals from TSLS also as pseudo-instrument:
+
+```{r}
+ols = lm(Y ~ D + X)
+to_be_rep_ols = ols$coefficient[2]
+
+# Create OLS weights
+omega_ols = weight_maker(Dtilde_tsls, Dtilde_tsls, MX) 
+
+cat("ω'Y replicates standard implementation?",
+    all.equal(as.numeric( omega_ols %*% Y ), as.numeric(to_be_rep_ols)))
+```
+
+## Difference in means
+
+Finally, the difference in means estimator is recovered by recycling the Wald residuals:
+
+```{r}
+dim = lm(Y ~ D)
+to_be_rep_dim = dim$coefficient[2]
+
+# Create DiM weights
+omega_dim = weight_maker(Dtilde_wald, Dtilde_wald, M1) 
+
+cat("ω'Y replicates standard implementation?",
+    all.equal(as.numeric( omega_dim %*% Y ), as.numeric(to_be_rep_dim)))
+```
+
+
+
+
+
