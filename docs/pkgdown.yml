@@ -1,0 +1,9 @@
+pandoc: '3.4'
+pkgdown: 2.1.3
+pkgdown_sha: ~
+articles:
+  Application_average_401k: Application_average_401k.html
+  Application_heterogeneous_401k: Application_heterogeneous_401k.html
+  NB_OutcomeWeights_AIPW_401k: NB_OutcomeWeights_AIPW_401k.html
+  Theory_in_action_outcome_weights: Theory_in_action_outcome_weights.html
+last_built: 2025-05-27T17:49Z

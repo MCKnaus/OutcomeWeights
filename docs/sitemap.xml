@@ -1,0 +1,27 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/articles/Application_average_401k.html</loc></url>
+<url><loc>/articles/Application_heterogeneous_401k.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/articles/NB_OutcomeWeights_AIPW_401k.html</loc></url>
+<url><loc>/articles/Theory_in_action_outcome_weights.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/news/index.html</loc></url>
+<url><loc>/reference/dml_with_smoother.html</loc></url>
+<url><loc>/reference/get_outcome_weights.causal_forest.html</loc></url>
+<url><loc>/reference/get_outcome_weights.dml_with_smoother.html</loc></url>
+<url><loc>/reference/get_outcome_weights.html</loc></url>
+<url><loc>/reference/get_outcome_weights.instrumental_forest.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/NuPa_honest_forest.html</loc></url>
+<url><loc>/reference/OutcomeWeights-package.html</loc></url>
+<url><loc>/reference/pive_weight_maker.html</loc></url>
+<url><loc>/reference/plot.dml_with_smoother.html</loc></url>
+<url><loc>/reference/prep_cf_mat.html</loc></url>
+<url><loc>/reference/standardized_mean_differences.html</loc></url>
+<url><loc>/reference/summary.dml_with_smoother.html</loc></url>
+<url><loc>/reference/summary.get_outcome_weights.html</loc></url>
+<url><loc>/reference/summary.standardized_mean_differences.html</loc></url>
+</urlset>
+
