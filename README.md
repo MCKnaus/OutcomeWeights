@@ -1,4 +1,4 @@
-# OutcomeWeights   <img src="man/figures/logo.png" align="right" alt="OutcomeWeights logo" height="64"/>
+# OutcomeWeights   <img src="man/figures/logo.png" align="right" alt="OutcomeWeights logo" height="150"/>
 
 <!-- badges: start -->
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/OutcomeWeights)](https://CRAN.R-project.org/package=OutcomeWeights)
