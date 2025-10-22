@@ -12,7 +12,7 @@
 #' @param X Covariate matrix with N rows and p columns.
 #' @param Z Optional binary instrumental variable.
 #' @param estimators String (vector) indicating which estimators should be run.
-#' Current menu: c("PLR","PLR_IV","AIPW_ATE","Wald_AIPW")
+#' Current menu: c("PLR","PLR_IV","AIPW_ATE","Wald_AIPW","AIPW_ATT","AIPW_ATU")
 #' @param smoother Indicate which smoother to be used for nuisance parameter estimation.
 #' Currently only available option \code{"honest_forest"} from the \pkg{grf} package.
 #' @param n_cf_folds Number of cross-fitting folds. Default is 5.
@@ -60,13 +60,13 @@
 #' @export
 #' 
 dml_with_smoother = function(Y,D,X,Z=NULL,
-                             estimators = c("PLR","PLR_IV","AIPW_ATE","Wald_AIPW"),
+                             estimators = c("PLR","PLR_IV","AIPW_ATE","Wald_AIPW","AIPW_ATT","AIPW_ATU")),
                              smoother = "honest_forest", 
                              n_cf_folds = 5,
                              n_reps=1,
                              ...) {
   # Sanity checks
-  supported_estimators = c("PLR","PLR_IV","AIPW_ATE","Wald_AIPW")
+  supported_estimators = c("PLR","PLR_IV","AIPW_ATE","Wald_AIPW","AIPW_ATT","AIPW_ATU")
   not_supported = estimators[!estimators %in% supported_estimators]
   if (length(not_supported) > 0) {
     stop(paste("Error: The following specified estimators are not supported:", 
@@ -90,6 +90,8 @@ dml_with_smoother = function(Y,D,X,Z=NULL,
   if ("PLR_IV" %in% estimators) NuPa = c(NuPa, "Y.hat", "D.hat", "Z.hat")
   if ("AIPW_ATE" %in% estimators) NuPa = c(NuPa, "Y.hat.d", "D.hat")
   if ("Wald_AIPW" %in% estimators) NuPa = c(NuPa, "Y.hat.z", "D.hat.z", "Z.hat")
+  if ("AIPW_ATT" %in% estimators) NuPa = c(NuPa, "Y.hat.d", "D.hat")
+  if ("AIPW_ATU" %in% estimators) NuPa = c(NuPa, "Y.hat.d", "D.hat")
   NuPa = unique(NuPa)
   
   # Estimate required nuisance parameters
@@ -102,7 +104,7 @@ dml_with_smoother = function(Y,D,X,Z=NULL,
   
   # Intialize empty
   dml_plr = dml_PLR_IV = dml_AIPW_ATE = dml_Wald_AIPW = 
-    "This estimator was not run."
+    dml_AIPW_ATT = dml_AIPW_ATU = "This estimator was not run."
   
   # Run the specified DML estimators
   if ("PLR" %in% estimators) {
@@ -138,12 +140,30 @@ dml_with_smoother = function(Y,D,X,Z=NULL,
     psi.b = Y.hat.z1 - Y.hat.z0 + Z * (Y - Y.hat.z1) / Z.hat - (1 - Z) * (Y - Y.hat.z0) / (1-Z.hat)
     dml_Wald_AIPW = dml_inference(psi.a,psi.b)
   }
+  if ("AIPW_ATT" %in% estimators) {
+    p.hat =  mean(D)
+    D.hat = NuPa.hat$predictions$D.hat 
+    Y.hat.d0 = NuPa.hat$predictions$Y.hat.d0 
+    psi.a = replicate(n_reps, - D / p.hat) 
+    psi.b = (D / p.hat - (1 - D) * D.hat / (p.hat * (1 - D.hat))) * (Y - Y.hat.d0)
+    dml_AIPW_ATT = dml_inference(psi.a,psi.b)
+  }
+  if ("AIPW_ATU" %in% estimators) {
+    p.hat =  mean(D)
+    D.hat = NuPa.hat$predictions$D.hat 
+    Y.hat.d1 = NuPa.hat$predictions$Y.hat.d1
+    psi.a = replicate(n_reps, - (1 - D) / (1 - p.hat)) 
+    psi.b = (D * (1 - D.hat) / ((1 - p.hat) * D.hat) - (1 - D) / (1 - p.hat)) * (Y - Y.hat.d1)
+    dml_AIPW_ATU = dml_inference(psi.a,psi.b)
+  }
   
   list_results = list(
     "PLR" = dml_plr,
     "PLR_IV" = dml_PLR_IV,
     "AIPW_ATE" = dml_AIPW_ATE,
-    "Wald_AIPW" = dml_Wald_AIPW )
+    "Wald_AIPW" = dml_Wald_AIPW,
+    "AIPW_ATT" = dml_AIPW_ATT,
+    "AIPW_ATU" = dml_AIPW_ATU)
   
   list_data = list(
     "Y" = Y,
