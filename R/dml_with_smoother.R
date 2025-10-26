@@ -12,7 +12,7 @@
 #' @param X Covariate matrix with N rows and p columns.
 #' @param Z Optional binary instrumental variable.
 #' @param estimators String (vector) indicating which estimators should be run.
-#' Current menu: c("PLR","PLR_IV","AIPW_ATE","Wald_AIPW")
+#' Current menu: c("PLR","PLR_IV","AIPW_ATE","Wald_AIPW","AIPW_ATT","AIPW_ATU")
 #' @param smoother Indicate which smoother to be used for nuisance parameter estimation.
 #' Currently only available option \code{"honest_forest"} from the \pkg{grf} package.
 #' @param n_cf_folds Number of cross-fitting folds. Default is 5.
@@ -60,13 +60,13 @@
 #' @export
 #' 
 dml_with_smoother = function(Y,D,X,Z=NULL,
-                             estimators = c("PLR","PLR_IV","AIPW_ATE","Wald_AIPW"),
+                             estimators = c("PLR","PLR_IV","AIPW_ATE","Wald_AIPW","AIPW_ATT","AIPW_ATU"),
                              smoother = "honest_forest", 
                              n_cf_folds = 5,
                              n_reps=1,
                              ...) {
   # Sanity checks
-  supported_estimators = c("PLR","PLR_IV","AIPW_ATE","Wald_AIPW")
+  supported_estimators = c("PLR","PLR_IV","AIPW_ATE","Wald_AIPW","AIPW_ATT","AIPW_ATU")
   not_supported = estimators[!estimators %in% supported_estimators]
   if (length(not_supported) > 0) {
     stop(paste("Error: The following specified estimators are not supported:", 
@@ -90,6 +90,8 @@ dml_with_smoother = function(Y,D,X,Z=NULL,
   if ("PLR_IV" %in% estimators) NuPa = c(NuPa, "Y.hat", "D.hat", "Z.hat")
   if ("AIPW_ATE" %in% estimators) NuPa = c(NuPa, "Y.hat.d", "D.hat")
   if ("Wald_AIPW" %in% estimators) NuPa = c(NuPa, "Y.hat.z", "D.hat.z", "Z.hat")
+  if ("AIPW_ATT" %in% estimators) NuPa = c(NuPa, "Y.hat.d", "D.hat")
+  if ("AIPW_ATU" %in% estimators) NuPa = c(NuPa, "Y.hat.d", "D.hat")
   NuPa = unique(NuPa)
   
   # Estimate required nuisance parameters
@@ -102,7 +104,7 @@ dml_with_smoother = function(Y,D,X,Z=NULL,
   
   # Intialize empty
   dml_plr = dml_PLR_IV = dml_AIPW_ATE = dml_Wald_AIPW = 
-    "This estimator was not run."
+    dml_AIPW_ATT = dml_AIPW_ATU = "This estimator was not run."
   
   # Run the specified DML estimators
   if ("PLR" %in% estimators) {
@@ -138,12 +140,30 @@ dml_with_smoother = function(Y,D,X,Z=NULL,
     psi.b = Y.hat.z1 - Y.hat.z0 + Z * (Y - Y.hat.z1) / Z.hat - (1 - Z) * (Y - Y.hat.z0) / (1-Z.hat)
     dml_Wald_AIPW = dml_inference(psi.a,psi.b)
   }
+  if ("AIPW_ATT" %in% estimators) {
+    pi.hat =  mean(D)
+    D.hat = NuPa.hat$predictions$D.hat 
+    Y.hat.d0 = NuPa.hat$predictions$Y.hat.d0 
+    psi.a = replicate(n_reps, - D / pi.hat) 
+    psi.b = (D / pi.hat - (1 - D) * D.hat / (pi.hat * (1 - D.hat))) * (Y - Y.hat.d0)
+    dml_AIPW_ATT = dml_inference(psi.a,psi.b)
+  }
+  if ("AIPW_ATU" %in% estimators) {
+    pi.hat =  mean(D)
+    D.hat = NuPa.hat$predictions$D.hat 
+    Y.hat.d1 = NuPa.hat$predictions$Y.hat.d1
+    psi.a = replicate(n_reps, - (1 - D) / (1 - pi.hat)) 
+    psi.b = (D * (1 - D.hat) / ((1 - pi.hat) * D.hat) - (1 - D) / (1 - pi.hat)) * (Y - Y.hat.d1)
+    dml_AIPW_ATU = dml_inference(psi.a,psi.b)
+  }
   
   list_results = list(
     "PLR" = dml_plr,
     "PLR_IV" = dml_PLR_IV,
     "AIPW_ATE" = dml_AIPW_ATE,
-    "Wald_AIPW" = dml_Wald_AIPW )
+    "Wald_AIPW" = dml_Wald_AIPW,
+    "AIPW_ATT" = dml_AIPW_ATT,
+    "AIPW_ATU" = dml_AIPW_ATU)
   
   list_data = list(
     "Y" = Y,
@@ -199,6 +219,7 @@ get_outcome_weights.dml_with_smoother = function(object,...,
   if (n_reps == 1) all_reps = FALSE
   
   # Go through those estimators called and extract their weights
+  ### PLR ### 
   if (!is.character(object$results$PLR)) {
     Z.tilde = D.tilde = object$data$D - object$NuPa.hat$predictions$D.hat
     omega_plr = NULL
@@ -212,6 +233,7 @@ get_outcome_weights.dml_with_smoother = function(object,...,
     estimator_names = c(estimator_names, "PLR") 
     omega = rbind(omega,colMeans(omega_plr))  }
   
+  ### PLR-IV ### 
   if (!is.character(object$results$PLR_IV)){
     Z.tilde = object$data$Z - object$NuPa.hat$predictions$Z.hat
     D.tilde = object$data$D - object$NuPa.hat$predictions$D.hat
@@ -226,6 +248,7 @@ get_outcome_weights.dml_with_smoother = function(object,...,
     estimator_names = c(estimator_names, "PLR-IV") 
     omega = rbind(omega,colMeans(omega_plriv))  }
   
+  ### AIPW_ATE ### 
   if (!is.character(object$results$AIPW_ATE)){
     Z.tilde = D.tilde = matrix(1,N,n_reps)
     lambda1 = object$data$D / object$NuPa.hat$predictions$D.hat
@@ -243,6 +266,7 @@ get_outcome_weights.dml_with_smoother = function(object,...,
     estimator_names = c(estimator_names, "AIPW-ATE") 
     omega = rbind(omega,colMeans(omega_aipw))  }
   
+  ### Wald_AIPW ### 
   if (!is.character(object$results$Wald_AIPW)){
     lambdaz1 = object$data$Z / object$NuPa.hat$predictions$Z.hat
     lambdaz0 = (1 - object$data$Z) / (1 - object$NuPa.hat$predictions$Z.hat)
@@ -263,6 +287,43 @@ get_outcome_weights.dml_with_smoother = function(object,...,
     estimator_names = c(estimator_names, "Wald-AIPW") 
     omega = rbind(omega,colMeans(omega_waipw))  }
   
+  ### AIPW_ATT ### 
+  if (!is.character(object$results$AIPW_ATT)){
+    Z.tilde = matrix(1,N,n_reps)
+    D.tilde = replicate(n_reps, object$data$D / mean(object$data$D)) 
+    lambda1 = replicate(n_reps, object$data$D / mean(object$data$D)) 
+    lambda0 = (1 - object$data$D) * object$NuPa.hat$predictions$D.hat / 
+              ( (1 - object$NuPa.hat$predictions$D.hat) * mean(object$data$D) )
+    omega_aipw_att = NULL
+    for (r in 1:n_reps) {
+      T_mat = (lambda1[,r] - lambda0[,r]) * (diag(N) - object$NuPa.hat$smoothers$S.d0[r,,])
+      omega_aipw_att = rbind(omega_aipw_att, pive_weight_maker(Z.tilde[,r], D.tilde[,r], T_mat) )
+    }
+    if(isFALSE(all.equal(as.numeric(omega_aipw_att %*% object$data$Y),
+                         as.numeric(object$results$AIPW_ATT$TaPa[,1])))){
+      warning("Estimated AIPW-ATT using weights differ from original estimates.") }
+    estimator_names = c(estimator_names, "AIPW-ATT") 
+    omega = rbind(omega,colMeans(omega_aipw_att))  }
+  
+  ### AIPW_ATU ### 
+  if (!is.character(object$results$AIPW_ATU)){
+    Z.tilde = matrix(1,N,n_reps)
+    D.tilde = replicate(n_reps, (1-object$data$D) / mean(1-object$data$D)) 
+    lambda1 = object$data$D * (1-object$NuPa.hat$predictions$D.hat) / 
+      ( object$NuPa.hat$predictions$D.hat * mean(1-object$data$D) )
+    lambda0 = replicate(n_reps, (1-object$data$D) / mean(1-object$data$D)) 
+    omega_aipw_atu = NULL
+    for (r in 1:n_reps) {
+      
+      T_mat = (lambda1[,r] - lambda0[,r]) * (diag(N) - object$NuPa.hat$smoothers$S.d1[r,,])
+      omega_aipw_atu = rbind(omega_aipw_atu, pive_weight_maker(Z.tilde[,r], D.tilde[,r], T_mat) )
+    }
+    if(isFALSE(all.equal(as.numeric(omega_aipw_atu %*% object$data$Y),
+                         as.numeric(object$results$AIPW_ATU$TaPa[,1])))){
+      warning("Estimated AIPW-ATU using weights differ from original estimates.") }
+    estimator_names = c(estimator_names, "AIPW-ATU") 
+    omega = rbind(omega,colMeans(omega_aipw_atu))  }
+  
   rownames(omega) = estimator_names
   
   output = list(
@@ -275,7 +336,9 @@ get_outcome_weights.dml_with_smoother = function(object,...,
       "PLR" = omega_plr,
       "PLR_IV" = omega_plriv,
       "AIPW_ATE" = omega_aipw,
-      "Wald_AIPW" = omega_waipw
+      "Wald_AIPW" = omega_waipw,      
+      "AIPW_ATT" = omega_aipw_att,
+      "AIPW_ATU" = omega_aipw_atu
     )
     output$omega_all_reps = list_all_weights
   }
@@ -377,6 +440,18 @@ summary.dml_with_smoother = function(object,
     results = rbind(results, results_maker(mean(object$results$Wald_AIPW$TaPa[,1]),Psi))
     IF = cbind(IF, Psi)
     estimator_names = c(estimator_names, "Wald-AIPW")}
+  if (!is.character(object$results$AIPW_ATT)){
+    Psi = rowMeans(object$results$AIPW_ATT$IF)
+    results = rbind(results, results_maker(mean(object$results$AIPW_ATT$TaPa[,1]),Psi))
+    IF = cbind(IF, Psi)
+    estimator_names = c(estimator_names, "AIPW-ATT")
+  }
+  if (!is.character(object$results$AIPW_ATU)){
+    Psi = rowMeans(object$results$AIPW_ATU$IF)
+    results = rbind(results, results_maker(mean(object$results$AIPW_ATU$TaPa[,1]),Psi))
+    IF = cbind(IF, Psi)
+    estimator_names = c(estimator_names, "AIPW-ATU")
+  }
   
   # Name and print results
   colnames(results) = c("Estimate","SE","t","p")
