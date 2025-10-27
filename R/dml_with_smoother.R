@@ -314,6 +314,7 @@ get_outcome_weights.dml_with_smoother = function(object,...,
     lambda0 = replicate(n_reps, (1-object$data$D) / mean(1-object$data$D)) 
     omega_aipw_atu = NULL
     for (r in 1:n_reps) {
+
       T_mat = (lambda1[,r] - lambda0[,r]) * (diag(N) - object$NuPa.hat$smoothers$S.d1[r,,])
       omega_aipw_atu = rbind(omega_aipw_atu, pive_weight_maker(Z.tilde[,r], D.tilde[,r], T_mat) )
     }
