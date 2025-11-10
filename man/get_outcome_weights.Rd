@@ -7,7 +7,8 @@
 get_outcome_weights(object, ...)
 }
 \arguments{
-\item{object}{An object, obtained from other packages.}
+\item{object}{An estimated object.
+See get_outcome_weight.<compatible_fct> in the package documentation for compatible object classes.}
 
 \item{...}{Additional arguments specific to object class implementations.
 See the documentation which object requires which additional arguments.}
@@ -22,7 +23,6 @@ A list of at least these components:
 \description{
 This is a generic method for getting outcome weights.
 It calculates the outcome weights for objects created by other packages.
-See get_outcome_weight.<compatible_fct> in the package documentation for compatible functions.
 }
 \references{
 Knaus, M. C. (2024). Treatment effect estimators as weighted outcomes, \url{https://arxiv.org/abs/2411.11559}.

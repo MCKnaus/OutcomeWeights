@@ -6,6 +6,8 @@
 \alias{OutcomeWeights-package}
 \title{OutcomeWeights: Outcome Weights of Treatment Effect Estimators}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 Many treatment effect estimators can be written as weighted outcomes. These weights have established use cases like checking covariate balancing via packages like 'cobalt'. This package takes the original estimator objects and outputs these outcome weights. It builds on the general framework of Knaus (2024) \doi{10.48550/arXiv.2411.11559}. This version is compatible with the 'grf' package and provides an internal implementation of Double Machine Learning.
 }
 \seealso{

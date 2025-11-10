@@ -4,7 +4,16 @@
 \alias{get_outcome_weights.instrumental_forest}
 \title{Outcome weights for the \code{\link[grf]{instrumental_forest}} function}
 \usage{
-\method{get_outcome_weights}{instrumental_forest}(object, ..., S, newdata = NULL, checks = TRUE)
+\method{get_outcome_weights}{instrumental_forest}(
+  object,
+  ...,
+  S,
+  S.tau = NULL,
+  newdata = NULL,
+  target = "CLATE",
+  compliance.scores = NULL,
+  checks = TRUE
+)
 }
 \arguments{
 \item{object}{An object of class \code{instrumental_forest}, i.e. the result of running \code{\link[grf]{instrumental_forest}}.}
@@ -14,11 +23,19 @@
 \item{S}{A smoother matrix reproducing the outcome predictions used in building the \code{\link[grf]{instrumental_forest}}.
 Obtained by calling \code{get_forest_weights()} for the \code{\link[grf]{regression_forest}} object producing the outcome predictions.}
 
+\item{S.tau}{Required if \code{target == "all"}, then S.tau is the CLATE smoother obtained from running \code{get_outcome_weights()}
+with \code{target == "CLATE"}.}
+
 \item{newdata}{Corresponds to \code{newdata} option in \code{\link[grf]{predict.instrumental_forest}}. If \code{NULL},
 out-of-bag outcome weights, otherwise for those for the provided test data returned.}
 
+\item{target}{Target parameter for which outcome weights should be extracted \code{c("CLATE","all")} where the latter corresponds to LATE.}
+
 \item{checks}{Default \code{TRUE} checks whether weights numerically replicate original estimates. Only set \code{FALSE} if you
 know what you are doing and want to save computation time.}
+
+\item{compliance.score}{Only relevant if \code{compliance.score} is passed to \code{\link[grf]{average_treatment_effects}}. Then pass the same argument here.
+Otherwise the identical auxiliary forest is internally estimated.}
 }
 \value{
 \link{get_outcome_weights} object with \code{omega} containing weights and \code{treat} the treatment

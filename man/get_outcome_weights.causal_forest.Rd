@@ -28,7 +28,8 @@ out-of-bag outcome weights, otherwise for those for the provided test data retur
 \item{S.tau}{Required if \code{target != "CATE"}, then S.tau is the CATE smoother obtained from running \code{get_outcome_weights()}
 with \code{target == "CATE"}.}
 
-\item{target}{Target parameter for which outcome weights should be extracted. Currently \code{c("CATE","ATE")} implemented.}
+\item{target}{Target parameter for which outcome weights should be extracted. Either \code{"CATE"} or the corresponding value of the
+\code{target.sample} option of the \code{\link[grf]{average_treatment_effect}} function \code{c("all", "treated", "control", "overlap")}.}
 
 \item{checks}{Default \code{TRUE} checks whether weights numerically replicate original estimates. Only set \code{FALSE} if you
 know what you are doing and need to save computation time.}

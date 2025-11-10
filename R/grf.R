@@ -13,7 +13,8 @@
 #' out-of-bag outcome weights, otherwise for those for the provided test data returned.
 #' @param S.tau Required if \code{target != "CATE"}, then S.tau is the CATE smoother obtained from running \code{get_outcome_weights()}
 #' with \code{target == "CATE"}.
-#' @param target Target parameter for which outcome weights should be extracted. Currently \code{c("CATE","ATE")} implemented.
+#' @param target Target parameter for which outcome weights should be extracted. Either \code{"CATE"} or the corresponding value of the 
+#' \code{target.sample} option of the \code{\link[grf]{average_treatment_effect}} function \code{c("all", "treated", "control", "overlap")}.
 #' @param checks Default \code{TRUE} checks whether weights numerically replicate original estimates. Only set \code{FALSE} if you 
 #' know what you are doing and need to save computation time.
 #'
@@ -91,15 +92,15 @@ get_outcome_weights.causal_forest = function(object,...,
   ones = matrix(1,n,1)
   
     ### Sanity checks
-  if (!(target %in% c("ATE", "CATE"))) stop("Currently only CATE and ATE as target parameters available.")
-  if (is.null(S.tau) & target == "ATE") stop("You specify target == \"ATE\" but do not provide S.tau as the CATE smoother matrix.
-                                            Please run get_outcome_weights first with target == \"CATE\" and pass the results as S.tau.")
-  if (!is.null(newdata) & target == "ATE") warning("newdata ignored when calculating ATE weights.")
+  if (is.null(S.tau) & target != "CATE") stop("Specifying target == c(\"all\", \"treated\", \"control\", \"overlap\") requires to provide S.tau as the CATE 
+  smoother matrix. Please run get_outcome_weights first with target == \"CATE\" and pass the resulting omega matrix as S.tau.")
+  if (!is.null(newdata) & target != "CATE") warning("newdata ignored when calculating weights with target == c(\"all\", \"treated\", \"control\", \"overlap\").")
   if (checks) {
     Y.hat_weights = S %*% Y
-    if (!all.equal(as.numeric(object$Y.hat), as.numeric(Y.hat_weights))) stop("Outcome smoother matrix does not replicate Y.hat used by causal forest.")
+    if (!all.equal(as.numeric(object$Y.hat), as.numeric(Y.hat_weights))) stop("Outcome smoother matrix S does not replicate Y.hat used by causal forest.")
   }
   
+  ######################################################################################################################
   if (target == "CATE") {
     # make the matrix a sparse matrix such that the C++ function accepts it
     if (!inherits(S, "dgCMatrix")) S = as(S,"dgCMatrix") 
@@ -122,32 +123,101 @@ get_outcome_weights.causal_forest = function(object,...,
         warning("CATEs produced using weights differ from original estimates.")
       }
     }
-  }  # end if (target == "CATE")
+  }
   
-  
-  if (target == "ATE") {
+  ######################################################################################################################
+  if (target == "all") {
     lambda1 = D / Dhat
     lambda0 = (1-D) / (1-Dhat)
-
+    
     # Element-wise operations for scaling
     scaled_S.tau = (D - Dhat) * S.tau  # Element-wise multiplication
-
+    
     # Calculate S adjustment
     S_adjusted = diag(n) - S - scaled_S.tau
-
+    
     # Compute the final matrix
     omega_aipw_grf = S.tau + (lambda1 - lambda0) * S_adjusted  # Element-wise multiplication
-
+    
     omega = matrix(t(ones) %*% omega_aipw_grf/ n,nrow=1)
     
     if (checks) {
-      cates_cf = predict(object)$predictions
       if(!isTRUE(all.equal(as.numeric(omega %*% Y),
                            as.numeric(grf::average_treatment_effect(object, target.sample = "all")[1])))){
         warning("Estimated Treatment Effects using weights differ from original estimates.")
       }
     }
-  } # end if (target == "ATE")
+  }
+  
+  ######################################################################################################################
+  ################# I thank Yvette Bodry, Laura Kreisel, Judith Lehner, and Lena Lengenfelder ##########################
+  ###### for providing a first draft of the following snippets as group assignment in the Causal ML cohort 2024/25 #####
+  ######################################################################################################################
+  if (target == "treated") {
+    is_treated = D == 1
+    
+    gamma = numeric(n)
+    gamma_control = D.hat[!is_treated] / (1 - D.hat[!is_treated])
+    norm_factor_control = sum(gamma_control * (1 - D[!is_treated]))
+    
+    # Normalize weights
+    gamma[!is_treated] = gamma_control / norm_factor_control * sum(D) # Control
+    gamma[is_treated] = 1 / sum(is_treated) * sum(D) # Treated
+    
+    # Compute adjusted matrices and final weights
+    S_adjusted = diag(n) - S - (D - D.hat) * S.tau
+    T_att = D * S.tau + (2 * D - 1) * gamma * S_adjusted
+    omega = matrix(t(ones) %*% T_att / sum(D),nrow=1)
+    
+    if (checks) {
+      if(!isTRUE(all.equal(as.numeric(omega %*% Y),
+                           as.numeric(grf::average_treatment_effect(object, target.sample = "treated")[1])))){
+        warning("Estimated Treatment Effects using weights differ from original estimates.")
+      }
+    }
+  } 
+  
+  ######################################################################################################################
+  if (target == "control") {
+    is_treated = D == 1
+    
+    gamma = numeric(n)
+    gamma_treated = (1 - D.hat[is_treated]) / D.hat[is_treated]
+    
+    # Normalize weights
+    n_untreated = sum(!is_treated)
+    gamma[!is_treated] = 1 / sum(!is_treated) * n_untreated  # Control
+    gamma[is_treated] = gamma_treated / sum(gamma_treated * D[is_treated]) * n_untreated  # Treated
+    
+    # Compute adjusted matrices and final weights
+    S_adjusted = diag(n) - S - (D - D.hat) * S.tau
+    T_atu = (1 - D) * S.tau + (2 * D - 1) * gamma * S_adjusted
+    omega =  matrix(t(ones) %*% T_atu / n_untreated,nrow=1)
+    
+    if (checks) {
+      if(!isTRUE(all.equal(as.numeric(omega %*% Y),
+                           as.numeric(grf::average_treatment_effect(object, target.sample = "control")[1])))){
+        warning("Estimated Treatment Effects using weights differ from original estimates.")
+      }
+    }
+  } 
+  
+  ######################################################################################################################
+  if (target == "overlap") {
+    V_hat = D - D.hat
+    S_adjusted = diag(n) - S
+    M = diag(n) - ones %*% t(ones) / n
+    tV = crossprod(V_hat, M)
+    omega = solve(tV %*% V_hat)
+    omega = matrix((as.numeric(omega) * tV) %*% S_adjusted,nrow=1)
+    
+    if (checks) {
+      if(!isTRUE(all.equal(as.numeric(omega %*% Y),
+                           as.numeric(grf::average_treatment_effect(object, target.sample = "overlap")[1])))){
+        warning("Estimated Treatment Effects using weights differ from original estimates.")
+      }
+    }
+  } 
   
   output = list(
     "omega" = omega,
@@ -171,8 +241,13 @@ get_outcome_weights.causal_forest = function(object,...,
 #' @param ... Pass potentially generic \link{get_outcome_weights} options.
 #' @param S A smoother matrix reproducing the outcome predictions used in building the \code{\link[grf]{instrumental_forest}}. 
 #' Obtained by calling \code{get_forest_weights()} for the \code{\link[grf]{regression_forest}} object producing the outcome predictions.
+#' @param S.tau Required if \code{target == "all"}, then S.tau is the CLATE smoother obtained from running \code{get_outcome_weights()}
+#' with \code{target == "CLATE"}.
 #' @param newdata Corresponds to \code{newdata} option in \code{\link[grf]{predict.instrumental_forest}}. If \code{NULL}, 
 #' out-of-bag outcome weights, otherwise for those for the provided test data returned.
+#' @param target Target parameter for which outcome weights should be extracted \code{c("CLATE","all")} where the latter corresponds to LATE.
+#' @param compliance.score Only relevant if \code{compliance.score} is passed to \code{\link[grf]{average_treatment_effects}}. Then pass the same argument here.
+#' Otherwise the identical auxiliary forest is internally estimated.
 #' @param checks Default \code{TRUE} checks whether weights numerically replicate original estimates. Only set \code{FALSE} if you 
 #' know what you are doing and want to save computation time.
 #'
@@ -223,43 +298,102 @@ get_outcome_weights.causal_forest = function(object,...,
 #' 
 get_outcome_weights.instrumental_forest = function(object,...,
                                                    S,
+                                                   S.tau=NULL,
                                                    newdata=NULL,
+                                                   target ="CLATE",
+                                                   compliance.scores=NULL,
                                                    checks=TRUE){
   ### Extract and define important components
   D = object$W.orig
   Y = object$Y.orig
+  D.hat = object$W.hat
+  Z.hat = object$Z.hat
   Dres = D - object$W.hat
   Zres = object$Z.orig - object$Z.hat
   n = length(Y)
   ones = matrix(1,n,1)
   
   ### Sanity checks
+  if (is.null(S.tau) & target != "CLATE") stop("Specifying target == \"all\" requires to provide S.tau as the CLATE 
+  smoother matrix. Please run get_outcome_weights first with target == \"CLATE\" and pass the resulting omega matrix as S.tau.")
+  if (!is.null(newdata) & target != "CLATE") warning("newdata ignored when calculating weights with target == \"all\".")
   if (checks) {
     Y.hat_weights = S %*% Y
     if (!all.equal(as.numeric(object$Y.hat), as.numeric(Y.hat_weights))) stop("Outcome smoother matrix does not replicate Y.hat used by causal forest.")
   }
   
-  # make the matrix a sparse matrix such that the C++ function accepts it
-  if (!inherits(S, "dgCMatrix")) S = as(S,"dgCMatrix") 
-  
-  ### Get the causal forest CATE weights
-  if (is.null(newdata)) alpha = grf::get_forest_weights(object)
-  else alpha = grf::get_forest_weights(object, newdata)
-  
-  # call the C++ function that calculates the Ztildex matrix:
-  scaled_Ztildex = scaled_Ztildex_maker(alpha,Zres,Dres)  # special case of instrumental forest with Zres = Dres0
-  # Transformation matrix
-  Tcf = (diag(n) - S)
-  # Calculate the omega matrix
-  omega = as.matrix(scaled_Ztildex %*% Tcf)
-  
-  if (checks) {
-    if (is.null(newdata)) clates_cf = predict(object)$predictions
-    else clates_cf = predict(object,newdata=newdata)$predictions
-    if(!isTRUE(all.equal(as.numeric(omega %*% Y),as.numeric(clates_cf)))){
-      warning("CATEs produced using weights differ from original estimates.")
+  if (target == "CLATE") {
+    # make the matrix a sparse matrix such that the C++ function accepts it
+    if (!inherits(S, "dgCMatrix")) S = as(S,"dgCMatrix") 
+    
+    ### Get the causal forest CATE weights
+    if (is.null(newdata)) alpha = grf::get_forest_weights(object)
+    else alpha = grf::get_forest_weights(object, newdata)
+    
+    # call the C++ function that calculates the Ztildex matrix:
+    scaled_Ztildex = scaled_Ztildex_maker(alpha,Zres,Dres)  # special case of instrumental forest with Zres = Dres0
+    # Transformation matrix
+    Tcf = (diag(n) - S)
+    # Calculate the omega matrix
+    omega = as.matrix(scaled_Ztildex %*% Tcf)
+    
+    if (checks) {
+      if (is.null(newdata)) clates_cf = predict(object)$predictions
+      else clates_cf = predict(object,newdata=newdata)$predictions
+      if(!isTRUE(all.equal(as.numeric(omega %*% Y),as.numeric(clates_cf)))){
+        warning("CLATEs produced using weights differ from original estimates.")
+      }
     }
   }
+  
+  ######################################################################################################################
+  ################# I thank Yvette Bodry, Laura Kreisel, Judith Lehner, and Lena Lengenfelder ##########################
+  ###### for providing a first draft of the following snippets as group assignment in the Causal ML cohort 2024/25 #####
+  ######################################################################################################################
+  
+  if (target == "all") {
+    
+    if (is.null(compliance.scores)) {
+      # Replicate instrumental_forest internal compliance score estimation
+      compute_compliance_scores = function(instrumental_forest) {
+        clusters = if (length(instrumental_forest$clusters) > 0) {
+          instrumental_forest$clusters
+        } else {
+          1:length(instrumental_forest$Y.orig)
+        }
+        
+        helper_forest = causal_forest(
+          X = instrumental_forest$X.orig,
+          Y = instrumental_forest$W.orig,
+          W = instrumental_forest$Z.orig,
+          Y.hat = instrumental_forest$W.hat,
+          W.hat = instrumental_forest$Z.hat,
+          sample.weights = instrumental_forest$sample.weights,
+          clusters = clusters,
+          num.trees = 500,
+          seed = instrumental_forest$seed,
+          num.threads = instrumental_forest$num.threads
+        )
+        
+        return(predict(helper_forest)$predictions)
+      }
+      compliance.scores = compute_compliance_scores(object)
+    }
+    
+    S_adjusted = diag(n) - S - S.tau * (D - D.hat)
+    debiased_weights = ((Z - Z.hat) / (Z.hat * (1 - Z.hat))) / compliance.scores
+    
+    T_late = S.tau + debiased_weights * S_adjusted
+    omega = matrix(t(ones) %*% T_late / n,nrow=1)
+    
+    if (checks) {
+      if(!isTRUE(all.equal(as.numeric(omega %*% Y),
+                           as.numeric(grf::average_treatment_effect(object, target.sample = "all")[1])))){
+        warning("Estimated Treatment Effects using weights differ from original estimates.")
+      }
+    }
+  } 
+  else stop("instrumental_forest object only compatible with target == c(\"CLATE\",\"all\").")
   
   output = list(
     "omega" = omega,

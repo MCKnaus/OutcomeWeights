@@ -28,7 +28,7 @@ The package is work in progress. Find here the current state (suggestions welcom
   - [x] `causal_forest()` outcome weights for CATE
   - [x] `instrumental_forest()` outcome weights CLATE
   - [x] `causal_forest()` outcome weights for ATE from `average_treatment_effect()`
-  - [ ] All outcome weights for average parameters compatible with `average_treatment_effect()`
+  - [x] All outcome weights for average parameters compatible with `average_treatment_effect()`
 - [ ] Package internal Double ML implementation handling the required outcome smoother matrices
   - [x] Nuisance parameter estimation based on honest random forest (`regression_forest()` of `grf` package)
   - [x] `dml_with_smoother()` function runs for PLR, PLR-IV, AIPW-ATE, and Wald_AIPW and is compatible with `get_outcome_weights()`

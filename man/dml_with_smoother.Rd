@@ -9,7 +9,7 @@ dml_with_smoother(
   D,
   X,
   Z = NULL,
-  estimators = c("PLR", "PLR_IV", "AIPW_ATE", "Wald_AIPW"),
+  estimators = c("PLR", "PLR_IV", "AIPW_ATE", "Wald_AIPW", "AIPW_ATT", "AIPW_ATU"),
   smoother = "honest_forest",
   n_cf_folds = 5,
   n_reps = 1,
@@ -26,7 +26,7 @@ dml_with_smoother(
 \item{Z}{Optional binary instrumental variable.}
 
 \item{estimators}{String (vector) indicating which estimators should be run.
-Current menu: c("PLR","PLR_IV","AIPW_ATE","Wald_AIPW")}
+Current menu: c("PLR","PLR_IV","AIPW_ATE","Wald_AIPW","AIPW_ATT","AIPW_ATU")}
 
 \item{smoother}{Indicate which smoother to be used for nuisance parameter estimation.
 Currently only available option \code{"honest_forest"} from the \pkg{grf} package.}

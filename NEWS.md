@@ -1,6 +1,8 @@
 # OutcomeWeights 0.2.0
 
-* Average treatement effect on the treated and on the untreated are now supported
+* Average treatment effect on the treated and on the untreated are now supported by dml_with_smoother
+
+* get_outcome_weights() now compatible with all average_treatment_effect() options for causal_forest and instrumental_forest
 
 
 # OutcomeWeights 0.1.1
