@@ -41,6 +41,10 @@ The package is work in progress. Find here the current state (suggestions welcom
   - [ ] Make the smoother matrices of `mlr3` accessible within DoubleML
   - [ ] Write `get_outcome_weights()` method for DoubleML estimators
 - [ ] Collect packages where weights could be extracted and implement them
+  - [x] `lm()`
+  - [x] `lm_robust()` of the `estimatr` package
+  - [x] `ivreg()` of the `AER` package
+  
 
 
 The development version is available using the `devtools` package:
