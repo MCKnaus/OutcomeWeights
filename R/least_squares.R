@@ -46,6 +46,8 @@ get_outcome_weights.lm_robust = function(object,treat_pos=2,...) {
     C[treat_pos-num_NA] = 1 # if some cols were deleted before the TE, we need a different row of the resp. matrix
   } else {stop("Check for multicollinearity")} # just in case something is wrong -> but shouldn't be the case
   
+  D = x[,treat_pos]
+  
   ### Calculation of the outcome weights
   # if sample weights were included in the original call, weights should take care of this
   if (weighted){
@@ -64,7 +66,7 @@ get_outcome_weights.lm_robust = function(object,treat_pos=2,...) {
   
   output = list(
     "omega" = matrix(omega,nrow=1),
-    "treat" = C %*% t(x)
+    "treat" = D
   )
   
   class(output) = c("get_outcome_weights")
@@ -93,6 +95,7 @@ get_outcome_weights.lm = function(object,treat_pos=2,...) {
   temp = model.matrix(object)
   x = temp[,!is.na(object$coefficients)]
   C = matrix(0,1,ncol(x))
+  D = x[,treat_pos]
   
   if (sum(is.na(object$coefficients))==0){ # everything is fine
     C[treat_pos] = 1
@@ -102,7 +105,6 @@ get_outcome_weights.lm = function(object,treat_pos=2,...) {
     num_NA = sum(which(is.na(object$coefficients))<=treat_pos) # number of NA coefficients before TE -> del. cols before TE
     C[treat_pos-num_NA] = 1 # if some cols were deleted before the TE, we need a different row of the resp. matrix in the end
   } else {stop("Check for multicollinearity")} # just in case something is wrong -> but shouldn't be the case -> can be deleted after some testing
-  
   
   # Access qr decomposition
   Q = qr.Q(object$qr)
@@ -137,7 +139,7 @@ get_outcome_weights.lm = function(object,treat_pos=2,...) {
   
   output = list(
     "omega" = matrix(omega,nrow=1),
-    "treat" = C %*% t(x)
+    "treat" = D
   )
   
   class(output) = c("get_outcome_weights")
@@ -171,6 +173,7 @@ get_outcome_weights.ivreg = function(object,treat_pos = 2,...){
   
   C = matrix(0,1,ncol(X_const))
   C[treat_pos] = 1
+  D = X_const[,treat_pos]
   
   # sampling weight if necessary
   if (!is.null(object$model$`(weights)`)&is.numeric(object$model$`(weights)`)){
@@ -190,7 +193,7 @@ get_outcome_weights.ivreg = function(object,treat_pos = 2,...){
   
   output = list(
     "omega" = matrix(omega,nrow=1),
-    "treat" = C %*% t(X_const)
+    "treat" = D
   )
   
   class(output) = c("get_outcome_weights")

@@ -4,6 +4,8 @@
 
 * get_outcome_weights() now compatible with all average_treatment_effect() options for causal_forest and instrumental_forest
 
+* get_outcome_weights() now compatible lm(), lm_robust() and ivreg()
+
 
 # OutcomeWeights 0.1.1
 

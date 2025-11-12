@@ -157,7 +157,7 @@ get_outcome_weights.causal_forest = function(object,...,
     is_treated = D == 1
     
     gamma = numeric(n)
-    gamma_control = D.hat[!is_treated] / (1 - D.hat[!is_treated])
+    gamma_control = Dhat[!is_treated] / (1 - Dhat[!is_treated])
     norm_factor_control = sum(gamma_control * (1 - D[!is_treated]))
     
     # Normalize weights
@@ -165,7 +165,7 @@ get_outcome_weights.causal_forest = function(object,...,
     gamma[is_treated] = 1 / sum(is_treated) * sum(D) # Treated
     
     # Compute adjusted matrices and final weights
-    S_adjusted = diag(n) - S - (D - D.hat) * S.tau
+    S_adjusted = diag(n) - S - (D - Dhat) * S.tau
     T_att = D * S.tau + (2 * D - 1) * gamma * S_adjusted
     omega = matrix(t(ones) %*% T_att / sum(D),nrow=1)
     
@@ -182,7 +182,7 @@ get_outcome_weights.causal_forest = function(object,...,
     is_treated = D == 1
     
     gamma = numeric(n)
-    gamma_treated = (1 - D.hat[is_treated]) / D.hat[is_treated]
+    gamma_treated = (1 - Dhat[is_treated]) / Dhat[is_treated]
     
     # Normalize weights
     n_untreated = sum(!is_treated)
@@ -190,7 +190,7 @@ get_outcome_weights.causal_forest = function(object,...,
     gamma[is_treated] = gamma_treated / sum(gamma_treated * D[is_treated]) * n_untreated  # Treated
     
     # Compute adjusted matrices and final weights
-    S_adjusted = diag(n) - S - (D - D.hat) * S.tau
+    S_adjusted = diag(n) - S - (D - Dhat) * S.tau
     T_atu = (1 - D) * S.tau + (2 * D - 1) * gamma * S_adjusted
     omega =  matrix(t(ones) %*% T_atu / n_untreated,nrow=1)
     
@@ -204,7 +204,7 @@ get_outcome_weights.causal_forest = function(object,...,
   
   ######################################################################################################################
   if (target == "overlap") {
-    V_hat = D - D.hat
+    V_hat = D - Dhat
     S_adjusted = diag(n) - S
     M = diag(n) - ones %*% t(ones) / n
     tV = crossprod(V_hat, M)
@@ -306,8 +306,8 @@ get_outcome_weights.instrumental_forest = function(object,...,
   ### Extract and define important components
   D = object$W.orig
   Y = object$Y.orig
-  D.hat = object$W.hat
-  Z.hat = object$Z.hat
+  Dhat = object$W.hat
+  Zhat = object$Z.hat
   Dres = D - object$W.hat
   Zres = object$Z.orig - object$Z.hat
   n = length(Y)
@@ -351,7 +351,7 @@ get_outcome_weights.instrumental_forest = function(object,...,
   ###### for providing a first draft of the following snippets as group assignment in the Causal ML cohort 2024/25 #####
   ######################################################################################################################
   
-  if (target == "all") {
+  else if (target == "all") {
     
     if (is.null(compliance.scores)) {
       # Replicate instrumental_forest internal compliance score estimation
@@ -380,8 +380,8 @@ get_outcome_weights.instrumental_forest = function(object,...,
       compliance.scores = compute_compliance_scores(object)
     }
     
-    S_adjusted = diag(n) - S - S.tau * (D - D.hat)
-    debiased_weights = ((Z - Z.hat) / (Z.hat * (1 - Z.hat))) / compliance.scores
+    S_adjusted = diag(n) - S - S.tau * (D - Dhat)
+    debiased_weights = ((Z - Zhat) / (Zhat * (1 - Zhat))) / compliance.scores
     
     T_late = S.tau + debiased_weights * S_adjusted
     omega = matrix(t(ones) %*% T_late / n,nrow=1)
