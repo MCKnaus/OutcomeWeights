@@ -56,7 +56,7 @@
 #'           as.numeric(cate.test))
 #' 
 #' # Also the ATE estimates are perfectly replicated
-#' omega_ate = get_outcome_weights(c.forest,target = "ATE", 
+#' omega_ate = get_outcome_weights(c.forest,target = "all", 
 #'                                 S = outcome_smoother, 
 #'                                 S.tau = omega_oob$omega)
 #' all.equal(as.numeric(omega_ate$omega %*% Y),
@@ -246,7 +246,7 @@ get_outcome_weights.causal_forest = function(object,...,
 #' @param newdata Corresponds to \code{newdata} option in \code{\link[grf]{predict.instrumental_forest}}. If \code{NULL}, 
 #' out-of-bag outcome weights, otherwise for those for the provided test data returned.
 #' @param target Target parameter for which outcome weights should be extracted \code{c("CLATE","all")} where the latter corresponds to LATE.
-#' @param compliance.score Only relevant if \code{compliance.score} is passed to \code{\link[grf]{average_treatment_effects}}. Then pass the same argument here.
+#' @param compliance.score Only relevant if \code{compliance.score} is passed to \code{\link[grf]{average_treatment_effect}}. Then pass the same argument here.
 #' Otherwise the identical auxiliary forest is internally estimated.
 #' @param checks Default \code{TRUE} checks whether weights numerically replicate original estimates. Only set \code{FALSE} if you 
 #' know what you are doing and want to save computation time.
@@ -301,11 +301,12 @@ get_outcome_weights.instrumental_forest = function(object,...,
                                                    S.tau=NULL,
                                                    newdata=NULL,
                                                    target ="CLATE",
-                                                   compliance.scores=NULL,
+                                                   compliance.score=NULL,
                                                    checks=TRUE){
   ### Extract and define important components
   D = object$W.orig
   Y = object$Y.orig
+  Z = object$Z.orig
   Dhat = object$W.hat
   Zhat = object$Z.hat
   Dres = D - object$W.hat
@@ -353,16 +354,16 @@ get_outcome_weights.instrumental_forest = function(object,...,
   
   else if (target == "all") {
     
-    if (is.null(compliance.scores)) {
+    if (is.null(compliance.score)) {
       # Replicate instrumental_forest internal compliance score estimation
-      compute_compliance_scores = function(instrumental_forest) {
+      compute_compliance_score = function(instrumental_forest) {
         clusters = if (length(instrumental_forest$clusters) > 0) {
           instrumental_forest$clusters
         } else {
           1:length(instrumental_forest$Y.orig)
         }
         
-        helper_forest = causal_forest(
+        helper_forest = grf::causal_forest(
           X = instrumental_forest$X.orig,
           Y = instrumental_forest$W.orig,
           W = instrumental_forest$Z.orig,
@@ -377,11 +378,11 @@ get_outcome_weights.instrumental_forest = function(object,...,
         
         return(predict(helper_forest)$predictions)
       }
-      compliance.scores = compute_compliance_scores(object)
+      compliance.score = compute_compliance_score(object)
     }
     
     S_adjusted = diag(n) - S - S.tau * (D - Dhat)
-    debiased_weights = ((Z - Zhat) / (Zhat * (1 - Zhat))) / compliance.scores
+    debiased_weights = ((Z - Zhat) / (Zhat * (1 - Zhat))) / compliance.score
     
     T_late = S.tau + debiased_weights * S_adjusted
     omega = matrix(t(ones) %*% T_late / n,nrow=1)

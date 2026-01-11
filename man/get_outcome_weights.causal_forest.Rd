@@ -77,7 +77,7 @@ all.equal(as.numeric(omega_test$omega \%*\% Y),
           as.numeric(cate.test))
 
 # Also the ATE estimates are perfectly replicated
-omega_ate = get_outcome_weights(c.forest,target = "ATE", 
+omega_ate = get_outcome_weights(c.forest,target = "all", 
                                 S = outcome_smoother, 
                                 S.tau = omega_oob$omega)
 all.equal(as.numeric(omega_ate$omega \%*\% Y),

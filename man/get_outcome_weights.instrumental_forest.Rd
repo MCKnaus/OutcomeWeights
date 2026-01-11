@@ -11,7 +11,7 @@
   S.tau = NULL,
   newdata = NULL,
   target = "CLATE",
-  compliance.scores = NULL,
+  compliance.score = NULL,
   checks = TRUE
 )
 }
@@ -31,11 +31,11 @@ out-of-bag outcome weights, otherwise for those for the provided test data retur
 
 \item{target}{Target parameter for which outcome weights should be extracted \code{c("CLATE","all")} where the latter corresponds to LATE.}
 
+\item{compliance.score}{Only relevant if \code{compliance.score} is passed to \code{\link[grf]{average_treatment_effect}}. Then pass the same argument here.
+Otherwise the identical auxiliary forest is internally estimated.}
+
 \item{checks}{Default \code{TRUE} checks whether weights numerically replicate original estimates. Only set \code{FALSE} if you
 know what you are doing and want to save computation time.}
-
-\item{compliance.score}{Only relevant if \code{compliance.score} is passed to \code{\link[grf]{average_treatment_effects}}. Then pass the same argument here.
-Otherwise the identical auxiliary forest is internally estimated.}
 }
 \value{
 \link{get_outcome_weights} object with \code{omega} containing weights and \code{treat} the treatment
